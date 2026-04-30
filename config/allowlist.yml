@@ -51,7 +51,7 @@ suppressed_user_agents:
 
 suppressed_paths:
   - path_contains: /server-status
-    src_ip: 198.51.100.10
+    src_ip: 192.0.2.70
     reason: Approved Apache status endpoint check
   - path_contains: /.well-known/security.txt
     reason: Security contact discovery request
