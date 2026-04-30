@@ -2,7 +2,7 @@
 
 ## Report Metadata
 
-- Generated At: `2026-05-01T00:58:12`
+- Generated At: `2026-05-01T01:19:55`
 - Total Incidents: `12`
 - Raw Alerts: `395`
 - Deduped Alerts: `39`

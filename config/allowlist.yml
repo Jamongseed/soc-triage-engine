@@ -17,3 +17,20 @@ allowed_ssh_logins:
   - src_ip: 203.0.113.79
     user: jamong
     reason: Known administrator login from trusted IP
+
+suppressed_rules:
+  - rule_id: WEB-SCAN-001
+    src_ip: 198.51.100.10
+    reason: Internal vulnerability scanner
+  - rule_id: WEB-SCAN-001
+    src_ip: 198.51.100.11
+    reason: Internal vulnerability scanner
+  - rule_id: WEB-SCAN-001
+    src_ip: 198.51.100.12
+    reason: Internal vulnerability scanner
+
+trusted_networks:
+  - cidr: 203.0.113.0/24
+    suppress_event_types:
+      - ssh_success_login
+    reason: Trusted administration network
