@@ -1,5 +1,7 @@
 # SOC Alert Triage Engine
 
+![Tests](https://github.com/Jamongseed/soc-triage-engine/actions/workflows/test.yml/badge.svg)
+
 SOC Alert Triage Engine is a log-based security analysis project that parses multi-source security logs, detects suspicious activity with YAML-based rules, suppresses known false positives, deduplicates repeated alerts, correlates alerts into incidents, reconstructs attack timelines, and generates analyst-friendly incident reports.
 
 This project is not a simple log viewer or SIEM dashboard. It focuses on reducing analyst workload by converting noisy raw alerts into incident-level findings.
