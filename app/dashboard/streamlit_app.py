@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
+from html import escape
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 OUTPUTS_DIR = BASE_DIR / "outputs"
@@ -91,6 +91,10 @@ def format_display_time(timestamp: str | None) -> str:
     except ValueError:
         return value
 
+def safe_html(value: Any) -> str:
+    if value is None:
+        return "-"
+    return escape(str(value), quote=True)
 
 def inject_css() -> None:
     st.markdown(
@@ -349,6 +353,108 @@ def inject_css() -> None:
             background: rgba(59,130,246,0.12);
             border:1px solid rgba(96,165,250,0.18);
         }
+        .stepper-wrap {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 4px 0;
+        }
+
+        .stepper-item {
+            position: relative;
+            display: grid;
+            grid-template-columns: 52px 1fr;
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .stepper-left {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .stepper-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 900;
+            box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
+            border: 2px solid rgba(255,255,255,0.70);
+            z-index: 2;
+        }
+
+        .stepper-line {
+            position: absolute;
+            top: 38px;
+            bottom: -16px;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(96,165,250,0.75), rgba(124,58,237,0.25));
+            z-index: 1;
+        }
+
+        .stepper-card {
+            background:
+                radial-gradient(circle at top right, rgba(59,130,246,0.10), transparent 26%),
+                linear-gradient(180deg, rgba(17,24,39,0.96) 0%, rgba(15,23,42,0.98) 100%);
+            border: 1px solid rgba(148,163,184,0.14);
+            border-radius: 18px;
+            padding: 15px 16px;
+            box-shadow: 0 10px 22px rgba(2, 6, 23, 0.16);
+        }
+
+        .stepper-card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .stepper-title {
+            color: #f8fafc;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+        }
+
+        .stepper-time {
+            color: #94a3b8;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .stepper-meta {
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .stepper-pill {
+            display: inline-block;
+            margin-right: 7px;
+            margin-top: 7px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #dbeafe;
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(96,165,250,0.18);
+        }
+
+        .stepper-evidence {
+            margin-top: 8px;
+            color: #e2e8f0;
+            font-size: 13px;
+            line-height: 1.55;
+        }
 
         .sidebar-kpi {
             background: linear-gradient(180deg, rgba(15,23,42,0.94) 0%, rgba(17,24,39,0.98) 100%);
@@ -441,35 +547,105 @@ def incident_card_html(incident: dict[str, Any]) -> str:
 def build_attack_flow_html(incident: dict[str, Any]) -> str:
     steps = []
     for item in incident.get("timeline", []):
-        steps.append(f'<span class="flow-step">{item.get("title", "-")}</span>')
+        title = safe_html(item.get("title", "-"))
+        steps.append(f'<span class="flow-step">{title}</span>')
+
     return "<div class='flow-wrap'>" + "".join(steps) + "</div>"
 
 
 def build_timeline_html(incident: dict[str, Any]) -> str:
     html_parts = []
+
     for item in incident.get("timeline", []):
         evidence = item.get("evidence", {})
+        severity = item.get("severity", "")
+        color = severity_color(severity)
+
+        title = safe_html(item.get("title", "-"))
+        rule_id = safe_html(item.get("rule_id", "-"))
+        timestamp = safe_html(format_display_time(item.get("timestamp")))
+        matched_field = safe_html(evidence.get("matched_field", "-"))
+        matched_pattern = safe_html(evidence.get("matched_pattern", "-"))
+        duplicate_count = safe_html(item.get("duplicate_count", 1))
+
         html_parts.append(
-            f"""
-            <div class="timeline-item" style="border-left: 4px solid {severity_color(item.get("severity", ""))};">
-                <div class="timeline-top">
-                    <div class="timeline-title">
-                        {item.get("title", "-")} {severity_badge_html(item.get("severity", ""))}
-                    </div>
-                    <div class="timeline-time">{format_display_time(item.get("timestamp"))}</div>
-                </div>
-                <div class="timeline-body">
-                    <span class="timeline-pill">Rule ID: {item.get("rule_id", "-")}</span>
-                    <span class="timeline-pill">Duplicates: {item.get("duplicate_count", 1)}</span>
-                    <br>
-                    Matched Field: <b>{evidence.get("matched_field", "-")}</b><br>
-                    Matched Pattern: <b>{evidence.get("matched_pattern", "-")}</b>
-                </div>
-            </div>
-            """
+            "<div class='timeline-item' "
+            f"style='border-left: 4px solid {color};'>"
+            "<div class='timeline-top'>"
+            "<div class='timeline-title'>"
+            f"{title} {severity_badge_html(severity)}"
+            "</div>"
+            f"<div class='timeline-time'>{timestamp}</div>"
+            "</div>"
+            "<div class='timeline-body'>"
+            f"<span class='timeline-pill'>Rule ID: {rule_id}</span>"
+            f"<span class='timeline-pill'>Duplicates: {duplicate_count}</span>"
+            "<br>"
+            f"Matched Field: <b>{matched_field}</b><br>"
+            f"Matched Pattern: <b>{matched_pattern}</b>"
+            "</div>"
+            "</div>"
         )
+
     return "".join(html_parts) if html_parts else "<div class='small-note'>No timeline events available.</div>"
 
+def build_timeline_stepper_html(incident: dict[str, Any]) -> str:
+    timeline = sorted(
+        incident.get("timeline", []),
+        key=lambda item: item.get("timestamp", ""),
+    )
+
+    if not timeline:
+        return "<div class='small-note'>No timeline events available.</div>"
+
+    html_parts = ["<div class='stepper-wrap'>"]
+
+    for index, item in enumerate(timeline, start=1):
+        evidence = item.get("evidence", {})
+        severity = item.get("severity", "")
+        color = severity_color(severity)
+
+        title = safe_html(item.get("title", "-"))
+        rule_id = safe_html(item.get("rule_id", "-"))
+        timestamp = safe_html(format_display_time(item.get("timestamp")))
+        matched_field = safe_html(evidence.get("matched_field", "-"))
+        matched_pattern = safe_html(evidence.get("matched_pattern", "-"))
+        duplicate_count = safe_html(item.get("duplicate_count", 1))
+
+        dedup_window = item.get("dedup_window_minutes")
+        dedup_window_text = "-" if dedup_window is None else f"{dedup_window}m"
+        dedup_window_text = safe_html(dedup_window_text)
+
+        line_html = "" if index == len(timeline) else "<div class='stepper-line'></div>"
+
+        html_parts.append(
+            "<div class='stepper-item'>"
+            "<div class='stepper-left'>"
+            f"<div class='stepper-dot' style='background:{color};'>{index}</div>"
+            f"{line_html}"
+            "</div>"
+            f"<div class='stepper-card' style='border-left: 4px solid {color};'>"
+            "<div class='stepper-card-head'>"
+            "<div class='stepper-title'>"
+            f"{title} {severity_badge_html(severity)}"
+            "</div>"
+            f"<div class='stepper-time'>{timestamp}</div>"
+            "</div>"
+            "<div class='stepper-meta'>"
+            f"<span class='stepper-pill'>Rule ID: {rule_id}</span>"
+            f"<span class='stepper-pill'>Duplicates: {duplicate_count}</span>"
+            f"<span class='stepper-pill'>Dedup Window: {dedup_window_text}</span>"
+            "</div>"
+            "<div class='stepper-evidence'>"
+            f"Matched Field: <b>{matched_field}</b><br>"
+            f"Matched Pattern: <b>{matched_pattern}</b>"
+            "</div>"
+            "</div>"
+            "</div>"
+        )
+
+    html_parts.append("</div>")
+    return "".join(html_parts)
 
 def alerts_to_dataframe(alerts: list[dict[str, Any]]) -> pd.DataFrame:
     rows = []
@@ -987,19 +1163,20 @@ with tab2:
             st.markdown('</div>', unsafe_allow_html=True)
 
         with right:
-            top_chart, top_dummy = st.columns([1, 0.0001])
-            with top_chart:
-                st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
-                st.markdown('<div class="subtle-title">Timeline Chart</div>', unsafe_allow_html=True)
-                st.plotly_chart(make_timeline_scatter(selected_incident), use_container_width=True)
-                st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="subtle-title">Attack Stepper ({len(selected_incident.get("timeline", []))} steps)</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(build_timeline_stepper_html(selected_incident), unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
 
-            st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
-            st.markdown('<div class="subtle-title">Attack Timeline</div>', unsafe_allow_html=True)
-            st.markdown(build_timeline_html(selected_incident), unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            with st.expander("Show raw timeline cards"):
+                st.markdown(build_timeline_html(selected_incident), unsafe_allow_html=True)
+
+            st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
 
 with tab3:
     st.markdown('<div class="section-title">Alert Analytics</div>', unsafe_allow_html=True)
