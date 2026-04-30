@@ -52,6 +52,41 @@ ATTACK_IPS = [
     "157.245.33.10",
 ]
 
+CRITICAL_CHAIN_IPS = [
+    "45.12.33.10",
+    "91.240.118.22",
+    "167.99.42.31",
+    "185.220.101.15",
+]
+
+HIGH_AUTH_ONLY_IPS = [
+    "203.0.113.90",
+    "203.0.113.91",
+    "198.51.100.200",
+    "64.227.18.90",
+    "143.198.77.21",
+]
+
+HIGH_WEB_IDS_IPS = [
+    "198.51.100.23",
+    "104.248.90.77",
+    "159.65.203.44",
+    "139.59.12.88",
+]
+
+MEDIUM_SCAN_IPS = [
+    "192.0.2.44",
+    "203.0.113.88",
+    "178.128.94.18",
+    "206.189.45.19",
+]
+
+LOW_SIGNAL_IPS = [
+    "188.166.21.70",
+    "157.245.33.10",
+    "45.155.205.111",
+]
+
 ADMIN_USERS_BY_IP = {
     "203.0.113.77": ["jamong", "deploy"],
     "203.0.113.78": ["backup", "jamong"],
@@ -530,6 +565,167 @@ def add_suricata_eve_alerts(lines: list[str], start: datetime, count: int) -> No
 
         cursor += timedelta(seconds=17 + (i % 4))
 
+def add_web_attack_profile(
+    lines: list[str],
+    start: datetime,
+    ips: list[str],
+    count: int,
+    profile: str,
+) -> None:
+    profiles = {
+        "exploit": [
+            ("/../../etc/passwd", "curl/8.0", 403),
+            ("/product?id=1%27%20OR%20%271%27=%271", "sqlmap/1.7", 403),
+            ("/search?q=<script>alert(1)</script>", "Mozilla/5.0", 403),
+            ("/download?file=../../../../etc/passwd", "curl/8.0", 403),
+            ("/api/user?id=1%20sleep(5)", "sqlmap/1.7", 403),
+        ],
+        "scan": [
+            ("/admin", "python-requests/2.31", 404),
+            ("/phpmyadmin", "nikto/2.5.0", 404),
+            ("/.env", "python-requests/2.31", 404),
+            ("/wp-admin", "curl/8.0", 404),
+        ],
+        "xss": [
+            ("/search?q=<script>alert(1)</script>", "Mozilla/5.0", 403),
+            ("/profile?name=javascript:alert(1)", "Mozilla/5.0", 403),
+            ("/image?src=x%20onerror=alert(1)", "Mozilla/5.0", 403),
+        ],
+        "low": [
+            ("/admin", "Mozilla/5.0", 404),
+            ("/robots.txt", "curl/8.0", 404),
+            ("/old-login", "Mozilla/5.0", 404),
+        ],
+    }
+
+    cases = profiles[profile]
+    cursor = start
+
+    for i in range(count):
+        ip = ips[(i // 35) % len(ips)]
+        path, user_agent, status = cases[i % len(cases)]
+
+        lines.append(
+            nginx_line(
+                ip=ip,
+                dt=cursor,
+                method="GET",
+                url=path,
+                status=status,
+                size=220 + (i % 120),
+                user_agent=user_agent,
+            )
+        )
+
+        cursor += timedelta(seconds=13 + (i % 5))
+
+
+def add_suricata_profile(
+    lines: list[str],
+    start: datetime,
+    ips: list[str],
+    count: int,
+    profile: str,
+) -> None:
+    profiles = {
+        "exploit": [
+            ("ET WEB_SERVER SQL Injection Attempt", "Web Application Attack", 1, 80),
+            ("ET WEB_SERVER Possible Cross Site Scripting Attempt", "Web Application Attack", 2, 80),
+            ("ET WEB_SERVER Directory Traversal Attempt", "Web Application Attack", 2, 80),
+        ],
+        "scan": [
+            ("ET SCAN Suspicious Inbound to Web Server", "Attempted Information Leak", 2, 80),
+            ("ET POLICY Possible SSH Scan", "Attempted Information Leak", 3, 22),
+        ],
+        "ssh": [
+            ("ET SCAN SSH Brute Force Attempt", "Attempted Administrator Privilege Gain", 2, 22),
+        ],
+        "low": [
+            ("ET POLICY Suspicious User-Agent Observed", "Potential Corporate Privacy Violation", 3, 80),
+        ],
+    }
+
+    cases = profiles[profile]
+    cursor = start
+
+    for i in range(count):
+        ip = ips[(i // 30) % len(ips)]
+        signature, category, severity, dest_port = cases[i % len(cases)]
+
+        lines.append(
+            suricata_eve_line(
+                dt=cursor,
+                src_ip=ip,
+                dest_ip="10.0.0.5",
+                signature=signature,
+                category=category,
+                severity=severity,
+                proto="TCP",
+                src_port=40000 + (i % 2000),
+                dest_port=dest_port,
+            )
+        )
+
+        cursor += timedelta(seconds=17 + (i % 4))
+
+
+def add_auth_profile(
+    lines: list[str],
+    start: datetime,
+    ips: list[str],
+    count: int,
+    success_after: bool,
+) -> None:
+    users = [
+        "root",
+        "admin",
+        "ubuntu",
+        "oracle",
+        "test",
+        "deploy",
+        "guest",
+        "backup",
+        "mysql",
+        "postgres",
+    ]
+
+    cursor = start
+    emitted = 0
+    block_size = 25
+
+    while emitted < count:
+        block_index = emitted // block_size
+        ip = ips[block_index % len(ips)]
+
+        for position in range(block_size):
+            if emitted >= count:
+                break
+
+            if success_after and position == block_size - 1:
+                user = "ubuntu"
+                lines.append(
+                    auth_success_line(
+                        ip=ip,
+                        dt=cursor,
+                        pid=5000 + emitted,
+                        user=user,
+                        port=55000 + emitted,
+                    )
+                )
+            else:
+                user = users[emitted % len(users)]
+                lines.append(
+                    auth_failed_line(
+                        ip=ip,
+                        dt=cursor,
+                        pid=5000 + emitted,
+                        user=user,
+                        port=55000 + emitted,
+                    )
+                )
+
+            cursor += timedelta(seconds=12)
+            emitted += 1
 
 def write_allowlist() -> None:
     ALLOWLIST.write_text(
@@ -651,10 +847,31 @@ def build_dataset(target_events: int) -> tuple[list[str], list[str], list[str]]:
 
     benign_count = int(target_events * 0.34)
     policy_suppression_web_count = int(target_events * 0.12)
-    attack_web_count = nginx_target - benign_count - policy_suppression_web_count
+
+    critical_web_count = int(target_events * 0.08)
+    high_web_count = int(target_events * 0.09)
+    medium_web_count = int(target_events * 0.09)
+    low_web_count = int(target_events * 0.04)
+
+    used_nginx = (
+        benign_count
+        + policy_suppression_web_count
+        + critical_web_count
+        + high_web_count
+        + medium_web_count
+        + low_web_count
+    )
+    remaining_nginx = nginx_target - used_nginx
+    benign_count += max(0, remaining_nginx)
 
     admin_login_count = int(target_events * 0.03)
-    auth_attack_count = auth_target - admin_login_count
+    critical_auth_count = int(target_events * 0.04)
+    high_auth_count = auth_target - admin_login_count - critical_auth_count
+
+    critical_ids_count = int(suricata_target * 0.25)
+    high_ids_count = int(suricata_target * 0.30)
+    medium_ids_count = int(suricata_target * 0.30)
+    low_ids_count = suricata_target - critical_ids_count - high_ids_count - medium_ids_count
 
     add_benign_web_traffic(
         nginx_lines,
@@ -668,28 +885,85 @@ def build_dataset(target_events: int) -> tuple[list[str], list[str], list[str]]:
         policy_suppression_web_count,
     )
 
-    add_external_attack_web_traffic(
+    add_web_attack_profile(
         nginx_lines,
         base + timedelta(hours=2),
-        attack_web_count,
+        CRITICAL_CHAIN_IPS,
+        critical_web_count,
+        "exploit",
+    )
+    add_auth_profile(
+        auth_lines,
+        base + timedelta(hours=2, minutes=30),
+        CRITICAL_CHAIN_IPS,
+        critical_auth_count,
+        success_after=True,
+    )
+    add_suricata_profile(
+        suricata_lines,
+        base + timedelta(hours=2, minutes=5),
+        CRITICAL_CHAIN_IPS,
+        critical_ids_count,
+        "exploit",
     )
 
-    add_auth_attack_traffic(
+    add_auth_profile(
         auth_lines,
         base + timedelta(hours=4),
-        auth_attack_count,
+        HIGH_AUTH_ONLY_IPS,
+        high_auth_count,
+        success_after=False,
+    )
+
+    add_web_attack_profile(
+        nginx_lines,
+        base + timedelta(hours=5),
+        HIGH_WEB_IDS_IPS,
+        high_web_count,
+        "exploit",
+    )
+    add_suricata_profile(
+        suricata_lines,
+        base + timedelta(hours=5, minutes=5),
+        HIGH_WEB_IDS_IPS,
+        high_ids_count,
+        "exploit",
+    )
+
+    add_web_attack_profile(
+        nginx_lines,
+        base + timedelta(hours=6),
+        MEDIUM_SCAN_IPS,
+        medium_web_count,
+        "scan",
+    )
+    add_suricata_profile(
+        suricata_lines,
+        base + timedelta(hours=6, minutes=5),
+        MEDIUM_SCAN_IPS,
+        medium_ids_count,
+        "scan",
+    )
+
+    add_web_attack_profile(
+        nginx_lines,
+        base + timedelta(hours=7),
+        LOW_SIGNAL_IPS,
+        low_web_count,
+        "low",
+    )
+    add_suricata_profile(
+        suricata_lines,
+        base + timedelta(hours=7, minutes=5),
+        LOW_SIGNAL_IPS,
+        low_ids_count,
+        "low",
     )
 
     add_allowed_admin_logins(
         auth_lines,
         base + timedelta(hours=8),
         admin_login_count,
-    )
-
-    add_suricata_eve_alerts(
-        suricata_lines,
-        base + timedelta(hours=2, minutes=2),
-        suricata_target,
     )
 
     nginx_lines.sort()
