@@ -5,6 +5,7 @@ from correlation.correlator import correlate_alerts_by_src_ip
 from correlation.dedup import calculate_reduction_rate, deduplicate_alerts
 from correlation.timeline import attach_timelines
 from parsers.nginx_parser import parse_nginx_file
+from report.markdown_report import generate_incident_report, write_incident_report
 from rules.matcher import match_rules
 from rules.rule_loader import load_rules
 
@@ -36,13 +37,22 @@ def main() -> None:
     incidents = correlate_alerts_by_src_ip(deduped_alerts)
     incidents = attach_timelines(incidents)
 
+    report = generate_incident_report(
+        incidents=incidents,
+        raw_alert_count=len(raw_alerts),
+        deduped_alert_count=len(deduped_alerts),
+        reduction_rate=reduction_rate,
+    )
+
     alerts_output = OUTPUTS_DIR / "alerts.json"
     deduped_alerts_output = OUTPUTS_DIR / "deduped_alerts.json"
     incidents_output = OUTPUTS_DIR / "incidents.json"
+    report_output = OUTPUTS_DIR / "incident_report.md"
 
     write_json(alerts_output, raw_alerts)
     write_json(deduped_alerts_output, deduped_alerts)
     write_json(incidents_output, incidents)
+    write_incident_report(report_output, report)
 
     print(f"[+] Parsed events: {len(events)}")
     print(f"[+] Loaded rules: {len(rules)}")
@@ -89,6 +99,7 @@ def main() -> None:
     print(f"\n[+] Raw alerts written to {alerts_output}")
     print(f"[+] Deduped alerts written to {deduped_alerts_output}")
     print(f"[+] Incidents written to {incidents_output}")
+    print(f"[+] Incident report written to {report_output}")
 
 
 if __name__ == "__main__":
