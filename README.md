@@ -214,13 +214,13 @@ It does not perform scanning, exploitation, brute force, or any offensive action
 ## Dashboard
 
 Run the analysis pipeline first:
-
+```bash
 python app/main.py
-
+```
 Then start the Streamlit dashboard:
-
+```bash
 streamlit run app/dashboard/streamlit_app.py
-
+```
 The dashboard provides:
 
 - Overview metrics
