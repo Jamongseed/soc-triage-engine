@@ -3,6 +3,7 @@ from pathlib import Path
 
 from correlation.correlator import correlate_alerts_by_src_ip
 from correlation.dedup import calculate_reduction_rate, deduplicate_alerts
+from correlation.suppress import load_allowlist, suppress_alerts
 from correlation.timeline import attach_timelines
 from parsers.authlog_parser import parse_authlog_file
 from parsers.nginx_parser import parse_nginx_file
@@ -15,6 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SAMPLE_NGINX_LOG = BASE_DIR / "samples" / "nginx_access.log"
 SAMPLE_AUTH_LOG = BASE_DIR / "samples" / "auth.log"
 RULES_DIR = BASE_DIR / "rules"
+ALLOWLIST_FILE = BASE_DIR / "config" / "allowlist.yml"
 OUTPUTS_DIR = BASE_DIR / "outputs"
 
 
@@ -31,9 +33,12 @@ def main() -> None:
     events = nginx_events + auth_events
 
     rules = load_rules(RULES_DIR)
+    allowlist = load_allowlist(ALLOWLIST_FILE)
 
     raw_alerts = match_rules(events, rules)
-    deduped_alerts = deduplicate_alerts(raw_alerts, window_minutes=10)
+    unsuppressed_alerts, suppressed_alerts = suppress_alerts(raw_alerts, allowlist)
+
+    deduped_alerts = deduplicate_alerts(unsuppressed_alerts, window_minutes=10)
     reduction_rate = calculate_reduction_rate(
         original_count=len(raw_alerts),
         deduped_count=len(deduped_alerts),
@@ -50,11 +55,13 @@ def main() -> None:
     )
 
     alerts_output = OUTPUTS_DIR / "alerts.json"
+    suppressed_alerts_output = OUTPUTS_DIR / "suppressed_alerts.json"
     deduped_alerts_output = OUTPUTS_DIR / "deduped_alerts.json"
     incidents_output = OUTPUTS_DIR / "incidents.json"
     report_output = OUTPUTS_DIR / "incident_report.md"
 
     write_json(alerts_output, raw_alerts)
+    write_json(suppressed_alerts_output, suppressed_alerts)
     write_json(deduped_alerts_output, deduped_alerts)
     write_json(incidents_output, incidents)
     write_incident_report(report_output, report)
@@ -64,9 +71,21 @@ def main() -> None:
     print(f"[+] Parsed total events: {len(events)}")
     print(f"[+] Loaded rules: {len(rules)}")
     print(f"[+] Generated raw alerts: {len(raw_alerts)}")
+    print(f"[+] Suppressed alerts: {len(suppressed_alerts)}")
     print(f"[+] Deduped alerts: {len(deduped_alerts)}")
     print(f"[+] Alert reduction rate: {reduction_rate}%")
     print(f"[+] Generated incidents: {len(incidents)}")
+
+    if suppressed_alerts:
+        print("\n[+] Suppressed Alerts")
+        for alert in suppressed_alerts:
+            print(
+                f"{alert['alert_id']} "
+                f"{alert['timestamp']} "
+                f"{alert['src_ip']} "
+                f"{alert['rule_name']} "
+                f"reason={alert['suppress_reason']}"
+            )
 
     print("\n[+] Deduped Alerts")
     for alert in deduped_alerts:
@@ -104,6 +123,7 @@ def main() -> None:
             )
 
     print(f"\n[+] Raw alerts written to {alerts_output}")
+    print(f"[+] Suppressed alerts written to {suppressed_alerts_output}")
     print(f"[+] Deduped alerts written to {deduped_alerts_output}")
     print(f"[+] Incidents written to {incidents_output}")
     print(f"[+] Incident report written to {report_output}")
