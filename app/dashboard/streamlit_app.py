@@ -713,35 +713,84 @@ def make_alert_by_ip_chart(deduped_df: pd.DataFrame) -> go.Figure:
 
 def make_timeline_scatter(incident: dict[str, Any]) -> go.Figure:
     timeline_df = timeline_to_dataframe(incident)
+
     if timeline_df.empty:
         fig = go.Figure()
         fig.update_layout(template="plotly_dark", height=320)
         return fig
 
-    fig = px.scatter(
-        timeline_df,
-        x="Time",
-        y="Step",
-        color="Severity",
-        hover_data=["Rule", "Rule ID", "Matched Field", "Matched Pattern"],
-        color_discrete_map={
-            "CRITICAL": "#ef4444",
-            "HIGH": "#f97316",
-            "MEDIUM": "#facc15",
-            "LOW": "#22c55e",
-        },
-        size=[14] * len(timeline_df),
+    timeline_df = timeline_df.sort_values("Step")
+
+    severity_colors = {
+        "CRITICAL": "#ef4444",
+        "HIGH": "#f97316",
+        "MEDIUM": "#facc15",
+        "LOW": "#22c55e",
+    }
+
+    marker_colors = [
+        severity_colors.get(severity, "#94a3b8")
+        for severity in timeline_df["Severity"]
+    ]
+
+    hover_text = []
+    for _, row in timeline_df.iterrows():
+        hover_text.append(
+            f"<b>{row['Rule']}</b><br>"
+            f"Time: {row['Time']}<br>"
+            f"Severity: {row['Severity']}<br>"
+            f"Rule ID: {row['Rule ID']}<br>"
+            f"Duplicates: {row['Duplicates']}<br>"
+            f"Evidence: {row['Matched Field']}={row['Matched Pattern']}"
+        )
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Scatter(
+            x=timeline_df["Time"],
+            y=timeline_df["Step"],
+            mode="lines+markers",
+            line=dict(
+                color="rgba(96, 165, 250, 0.75)",
+                width=3,
+                shape="linear",
+            ),
+            marker=dict(
+                size=16,
+                color=marker_colors,
+                line=dict(
+                    width=2,
+                    color="rgba(255,255,255,0.75)",
+                ),
+            ),
+            text=hover_text,
+            hoverinfo="text",
+            name="Attack Timeline",
+        )
     )
-    fig.update_traces(mode="lines+markers")
+
     fig.update_layout(
         template="plotly_dark",
         margin=dict(l=10, r=10, t=10, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         height=320,
-        yaxis_title="Step",
+        yaxis_title="Attack Step",
         xaxis_title=None,
+        showlegend=False,
     )
+
+    fig.update_yaxes(
+        tickmode="linear",
+        dtick=1,
+        gridcolor="rgba(148, 163, 184, 0.22)",
+    )
+
+    fig.update_xaxes(
+        gridcolor="rgba(148, 163, 184, 0.12)",
+    )
+
     return fig
 
 
