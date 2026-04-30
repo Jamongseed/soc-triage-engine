@@ -1,0 +1,14 @@
+id: SSH-SUCCESS-001
+title: SSH Successful Login
+source: authlog
+severity: high
+mitre:
+  - T1078
+conditions:
+  event_type_equals:
+    - ssh_success_login
+dedup:
+  key:
+    - src_ip
+    - rule_id
+  window_minutes: 10

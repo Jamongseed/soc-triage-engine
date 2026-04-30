@@ -1,0 +1,14 @@
+id: SSH-FAIL-001
+title: SSH Failed Login
+source: authlog
+severity: medium
+mitre:
+  - T1110
+conditions:
+  event_type_equals:
+    - ssh_failed_login
+dedup:
+  key:
+    - src_ip
+    - rule_id
+  window_minutes: 10

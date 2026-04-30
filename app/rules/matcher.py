@@ -2,10 +2,6 @@ from typing import Any
 
 
 def _contains_any(value: str | None, patterns: list[str]) -> tuple[bool, str | None]:
-    """
-    Return True if value contains any pattern.
-    Case-insensitive matching.
-    """
     if value is None:
         return False, None
 
@@ -18,14 +14,18 @@ def _contains_any(value: str | None, patterns: list[str]) -> tuple[bool, str | N
     return False, None
 
 
-def match_rule(event: dict[str, Any], rule: dict[str, Any]) -> dict[str, Any] | None:
-    """
-    Match one normalized event against one detection rule.
+def _equals_any(value: str | None, candidates: list[str]) -> tuple[bool, str | None]:
+    if value is None:
+        return False, None
 
-    Current condition logic:
-    - Multiple condition fields are OR-based.
-    - If any configured condition matches, an alert is generated.
-    """
+    for candidate in candidates:
+        if value == candidate:
+            return True, candidate
+
+    return False, None
+
+
+def match_rule(event: dict[str, Any], rule: dict[str, Any]) -> dict[str, Any] | None:
     if event.get("source") != rule.get("source"):
         return None
 
@@ -49,6 +49,16 @@ def match_rule(event: dict[str, Any], rule: dict[str, Any]) -> dict[str, Any] | 
             evidence["matched_field"] = "user_agent"
             evidence["matched_pattern"] = pattern
 
+    if "event_type_equals" in conditions:
+        matched, candidate = _equals_any(
+            event.get("event_type"),
+            conditions["event_type_equals"],
+        )
+        if matched:
+            evidence["event_type"] = event.get("event_type")
+            evidence["matched_field"] = "event_type"
+            evidence["matched_pattern"] = candidate
+
     if not evidence:
         return None
 
@@ -67,9 +77,6 @@ def match_rule(event: dict[str, Any], rule: dict[str, Any]) -> dict[str, Any] | 
 
 
 def match_rules(events: list[dict[str, Any]], rules: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """
-    Match normalized events against all detection rules.
-    """
     alerts = []
 
     for event in events:

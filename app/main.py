@@ -4,6 +4,7 @@ from pathlib import Path
 from correlation.correlator import correlate_alerts_by_src_ip
 from correlation.dedup import calculate_reduction_rate, deduplicate_alerts
 from correlation.timeline import attach_timelines
+from parsers.authlog_parser import parse_authlog_file
 from parsers.nginx_parser import parse_nginx_file
 from report.markdown_report import generate_incident_report, write_incident_report
 from rules.matcher import match_rules
@@ -12,6 +13,7 @@ from rules.rule_loader import load_rules
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SAMPLE_NGINX_LOG = BASE_DIR / "samples" / "nginx_access.log"
+SAMPLE_AUTH_LOG = BASE_DIR / "samples" / "auth.log"
 RULES_DIR = BASE_DIR / "rules"
 OUTPUTS_DIR = BASE_DIR / "outputs"
 
@@ -24,7 +26,10 @@ def write_json(file_path: Path, data: object) -> None:
 def main() -> None:
     OUTPUTS_DIR.mkdir(exist_ok=True)
 
-    events = parse_nginx_file(str(SAMPLE_NGINX_LOG))
+    nginx_events = parse_nginx_file(str(SAMPLE_NGINX_LOG))
+    auth_events = parse_authlog_file(str(SAMPLE_AUTH_LOG), year=2026)
+    events = nginx_events + auth_events
+
     rules = load_rules(RULES_DIR)
 
     raw_alerts = match_rules(events, rules)
@@ -54,7 +59,9 @@ def main() -> None:
     write_json(incidents_output, incidents)
     write_incident_report(report_output, report)
 
-    print(f"[+] Parsed events: {len(events)}")
+    print(f"[+] Parsed nginx events: {len(nginx_events)}")
+    print(f"[+] Parsed auth events: {len(auth_events)}")
+    print(f"[+] Parsed total events: {len(events)}")
     print(f"[+] Loaded rules: {len(rules)}")
     print(f"[+] Generated raw alerts: {len(raw_alerts)}")
     print(f"[+] Deduped alerts: {len(deduped_alerts)}")
