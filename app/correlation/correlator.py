@@ -58,6 +58,14 @@ def correlate_alerts_by_src_ip(alerts: list[dict[str, Any]]) -> list[dict[str, A
             }
         )
 
+        sources = sorted(
+            {
+                alert.get("source")
+                for alert in sorted_alerts
+                if alert.get("source")
+            }
+        )
+        
         mitre_context = enrich_mitre_context(techniques)
         score_result = calculate_sequence_score(sorted_alerts)
 
@@ -72,6 +80,7 @@ def correlate_alerts_by_src_ip(alerts: list[dict[str, Any]]) -> list[dict[str, A
                 "first_seen": first_seen,
                 "last_seen": last_seen,
                 "alert_count": len(sorted_alerts),
+                "sources": sources,
                 "unique_rule_count": len({alert["rule_id"] for alert in sorted_alerts}),
                 "techniques": mitre_context["techniques"],
                 "tactics": mitre_context["tactics"],

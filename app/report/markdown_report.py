@@ -289,6 +289,7 @@ def generate_incident_report(
                 "|---|---|",
                 f"| Source IP | `{incident['src_ip']}` |",
                 f"| Severity | `{incident['severity']}` |",
+                f"| Sources | `{_format_list(incident.get('sources', []))}` |",
                 f"| Confidence Score | `{incident.get('confidence_score', 0)}` |",
                 f"| Containment Priority | `{containment_priority}` |",
                 f"| First Seen | `{incident['first_seen']}` |",
