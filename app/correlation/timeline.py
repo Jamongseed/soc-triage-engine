@@ -14,6 +14,9 @@ def build_timeline(incident: dict[str, Any]) -> list[dict[str, Any]]:
                 "rule_id": alert["rule_id"],
                 "title": alert["rule_name"],
                 "severity": alert["severity"],
+                "duplicate_count": alert.get("duplicate_count", 1),
+                "first_seen": alert.get("first_seen", alert["timestamp"]),
+                "last_seen": alert.get("last_seen", alert["timestamp"]),
                 "evidence": alert["evidence"],
             }
         )
