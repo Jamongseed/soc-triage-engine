@@ -3,7 +3,7 @@
     "rule_id": "SSH-SUCCESS-001",
     "rule_name": "SSH Successful Login",
     "severity": "high",
-    "timestamp": "2026-04-30T11:05:12",
+    "timestamp": "2026-04-30T12:50:00",
     "source": "authlog",
     "event_type": "ssh_success_login",
     "src_ip": "203.0.113.77",
@@ -16,18 +16,178 @@
       "matched_pattern": "ssh_success_login"
     },
     "raw_event": {
-      "timestamp": "2026-04-30T11:05:12",
+      "timestamp": "2026-04-30T12:50:00",
       "source": "authlog",
       "event_type": "ssh_success_login",
       "src_ip": "203.0.113.77",
       "user": "jamong",
-      "src_port": 61000,
+      "src_port": 62000,
       "host": "jamong",
-      "pid": 1301,
+      "pid": 3000,
       "auth_result": "success",
-      "raw": "Apr 30 11:05:12 jamong sshd[1301]: Accepted password for jamong from 203.0.113.77 port 61000 ssh2"
+      "raw": "Apr 30 12:50:00 jamong sshd[3000]: Accepted password for jamong from 203.0.113.77 port 62000 ssh2"
     },
-    "alert_id": "A-000011",
+    "alert_id": "A-000382",
+    "suppressed": true,
+    "suppress_reason": "Known administrator login from trusted IP"
+  },
+  {
+    "rule_id": "SSH-SUCCESS-001",
+    "rule_name": "SSH Successful Login",
+    "severity": "high",
+    "timestamp": "2026-04-30T12:54:00",
+    "source": "authlog",
+    "event_type": "ssh_success_login",
+    "src_ip": "203.0.113.77",
+    "mitre": [
+      "T1078"
+    ],
+    "evidence": {
+      "event_type": "ssh_success_login",
+      "matched_field": "event_type",
+      "matched_pattern": "ssh_success_login"
+    },
+    "raw_event": {
+      "timestamp": "2026-04-30T12:54:00",
+      "source": "authlog",
+      "event_type": "ssh_success_login",
+      "src_ip": "203.0.113.77",
+      "user": "deploy",
+      "src_port": 62001,
+      "host": "jamong",
+      "pid": 3001,
+      "auth_result": "success",
+      "raw": "Apr 30 12:54:00 jamong sshd[3001]: Accepted password for deploy from 203.0.113.77 port 62001 ssh2"
+    },
+    "alert_id": "A-000383",
+    "suppressed": true,
+    "suppress_reason": "Known deploy account from trusted IP"
+  },
+  {
+    "rule_id": "SSH-SUCCESS-001",
+    "rule_name": "SSH Successful Login",
+    "severity": "high",
+    "timestamp": "2026-04-30T12:58:00",
+    "source": "authlog",
+    "event_type": "ssh_success_login",
+    "src_ip": "203.0.113.78",
+    "mitre": [
+      "T1078"
+    ],
+    "evidence": {
+      "event_type": "ssh_success_login",
+      "matched_field": "event_type",
+      "matched_pattern": "ssh_success_login"
+    },
+    "raw_event": {
+      "timestamp": "2026-04-30T12:58:00",
+      "source": "authlog",
+      "event_type": "ssh_success_login",
+      "src_ip": "203.0.113.78",
+      "user": "backup",
+      "src_port": 62002,
+      "host": "jamong",
+      "pid": 3002,
+      "auth_result": "success",
+      "raw": "Apr 30 12:58:00 jamong sshd[3002]: Accepted password for backup from 203.0.113.78 port 62002 ssh2"
+    },
+    "alert_id": "A-000384",
+    "suppressed": true,
+    "suppress_reason": "Known backup automation from trusted IP"
+  },
+  {
+    "rule_id": "SSH-SUCCESS-001",
+    "rule_name": "SSH Successful Login",
+    "severity": "high",
+    "timestamp": "2026-04-30T13:02:00",
+    "source": "authlog",
+    "event_type": "ssh_success_login",
+    "src_ip": "203.0.113.78",
+    "mitre": [
+      "T1078"
+    ],
+    "evidence": {
+      "event_type": "ssh_success_login",
+      "matched_field": "event_type",
+      "matched_pattern": "ssh_success_login"
+    },
+    "raw_event": {
+      "timestamp": "2026-04-30T13:02:00",
+      "source": "authlog",
+      "event_type": "ssh_success_login",
+      "src_ip": "203.0.113.78",
+      "user": "jamong",
+      "src_port": 62003,
+      "host": "jamong",
+      "pid": 3003,
+      "auth_result": "success",
+      "raw": "Apr 30 13:02:00 jamong sshd[3003]: Accepted password for jamong from 203.0.113.78 port 62003 ssh2"
+    },
+    "alert_id": "A-000385",
+    "suppressed": true,
+    "suppress_reason": "Known administrator login from trusted IP"
+  },
+  {
+    "rule_id": "SSH-SUCCESS-001",
+    "rule_name": "SSH Successful Login",
+    "severity": "high",
+    "timestamp": "2026-04-30T13:06:00",
+    "source": "authlog",
+    "event_type": "ssh_success_login",
+    "src_ip": "203.0.113.79",
+    "mitre": [
+      "T1078"
+    ],
+    "evidence": {
+      "event_type": "ssh_success_login",
+      "matched_field": "event_type",
+      "matched_pattern": "ssh_success_login"
+    },
+    "raw_event": {
+      "timestamp": "2026-04-30T13:06:00",
+      "source": "authlog",
+      "event_type": "ssh_success_login",
+      "src_ip": "203.0.113.79",
+      "user": "deploy",
+      "src_port": 62004,
+      "host": "jamong",
+      "pid": 3004,
+      "auth_result": "success",
+      "raw": "Apr 30 13:06:00 jamong sshd[3004]: Accepted password for deploy from 203.0.113.79 port 62004 ssh2"
+    },
+    "alert_id": "A-000386",
+    "suppressed": true,
+    "suppress_reason": "Known deployment host from trusted IP"
+  },
+  {
+    "rule_id": "SSH-SUCCESS-001",
+    "rule_name": "SSH Successful Login",
+    "severity": "high",
+    "timestamp": "2026-04-30T13:10:00",
+    "source": "authlog",
+    "event_type": "ssh_success_login",
+    "src_ip": "203.0.113.79",
+    "mitre": [
+      "T1078"
+    ],
+    "evidence": {
+      "event_type": "ssh_success_login",
+      "matched_field": "event_type",
+      "matched_pattern": "ssh_success_login"
+    },
+    "raw_event": {
+      "timestamp": "2026-04-30T13:10:00",
+      "source": "authlog",
+      "event_type": "ssh_success_login",
+      "src_ip": "203.0.113.79",
+      "user": "jamong",
+      "src_port": 62005,
+      "host": "jamong",
+      "pid": 3005,
+      "auth_result": "success",
+      "raw": "Apr 30 13:10:00 jamong sshd[3005]: Accepted password for jamong from 203.0.113.79 port 62005 ssh2"
+    },
+    "alert_id": "A-000387",
     "suppressed": true,
     "suppress_reason": "Known administrator login from trusted IP"
   }

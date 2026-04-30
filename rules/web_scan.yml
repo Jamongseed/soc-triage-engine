@@ -1,0 +1,29 @@
+id: WEB-SCAN-001
+title: Web Scanner Activity
+source: nginx
+severity: medium
+mitre:
+  - T1595
+  - T1190
+conditions:
+  url_contains:
+    - "/admin"
+    - "/phpmyadmin"
+    - "/wp-admin"
+    - "/.env"
+    - "/.git"
+    - "/backup.zip"
+    - "/config.php"
+    - "/server-status"
+  user_agent_contains:
+    - "python-requests"
+    - "nikto"
+    - "nmap"
+    - "masscan"
+    - "zgrab"
+    - "curl"
+dedup:
+  key:
+    - src_ip
+    - rule_id
+  window_minutes: 30

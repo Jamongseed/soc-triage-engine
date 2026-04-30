@@ -2,3 +2,18 @@ allowed_ssh_logins:
   - src_ip: 203.0.113.77
     user: jamong
     reason: Known administrator login from trusted IP
+  - src_ip: 203.0.113.77
+    user: deploy
+    reason: Known deploy account from trusted IP
+  - src_ip: 203.0.113.78
+    user: backup
+    reason: Known backup automation from trusted IP
+  - src_ip: 203.0.113.78
+    user: jamong
+    reason: Known administrator login from trusted IP
+  - src_ip: 203.0.113.79
+    user: deploy
+    reason: Known deployment host from trusted IP
+  - src_ip: 203.0.113.79
+    user: jamong
+    reason: Known administrator login from trusted IP
