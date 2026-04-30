@@ -1,0 +1,34 @@
+[
+  {
+    "rule_id": "SSH-SUCCESS-001",
+    "rule_name": "SSH Successful Login",
+    "severity": "high",
+    "timestamp": "2026-04-30T11:05:12",
+    "source": "authlog",
+    "event_type": "ssh_success_login",
+    "src_ip": "203.0.113.77",
+    "mitre": [
+      "T1078"
+    ],
+    "evidence": {
+      "event_type": "ssh_success_login",
+      "matched_field": "event_type",
+      "matched_pattern": "ssh_success_login"
+    },
+    "raw_event": {
+      "timestamp": "2026-04-30T11:05:12",
+      "source": "authlog",
+      "event_type": "ssh_success_login",
+      "src_ip": "203.0.113.77",
+      "user": "jamong",
+      "src_port": 61000,
+      "host": "jamong",
+      "pid": 1301,
+      "auth_result": "success",
+      "raw": "Apr 30 11:05:12 jamong sshd[1301]: Accepted password for jamong from 203.0.113.77 port 61000 ssh2"
+    },
+    "alert_id": "A-000011",
+    "suppressed": true,
+    "suppress_reason": "Known administrator login from trusted IP"
+  }
+]
