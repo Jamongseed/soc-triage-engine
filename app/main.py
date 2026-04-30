@@ -10,6 +10,7 @@ from parsers.nginx_parser import parse_nginx_file
 from report.markdown_report import generate_incident_report, write_incident_report
 from rules.matcher import match_rules
 from rules.rule_loader import load_rules
+from rules.threshold import detect_ssh_bruteforce
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,7 +36,18 @@ def main() -> None:
     rules = load_rules(RULES_DIR)
     allowlist = load_allowlist(ALLOWLIST_FILE)
 
-    raw_alerts = match_rules(events, rules)
+    rule_alerts = match_rules(events, rules)
+    threshold_alerts = detect_ssh_bruteforce(
+        events,
+        threshold=4,
+        window_minutes=10,
+    )
+
+    raw_alerts = rule_alerts + threshold_alerts
+
+    for index, alert in enumerate(raw_alerts, start=1):
+        alert["alert_id"] = f"A-{index:06d}"
+
     unsuppressed_alerts, suppressed_alerts = suppress_alerts(raw_alerts, allowlist)
 
     deduped_alerts = deduplicate_alerts(unsuppressed_alerts, window_minutes=10)
@@ -70,6 +82,8 @@ def main() -> None:
     print(f"[+] Parsed auth events: {len(auth_events)}")
     print(f"[+] Parsed total events: {len(events)}")
     print(f"[+] Loaded rules: {len(rules)}")
+    print(f"[+] Generated rule alerts: {len(rule_alerts)}")
+    print(f"[+] Generated threshold alerts: {len(threshold_alerts)}")
     print(f"[+] Generated raw alerts: {len(raw_alerts)}")
     print(f"[+] Suppressed alerts: {len(suppressed_alerts)}")
     print(f"[+] Deduped alerts: {len(deduped_alerts)}")
