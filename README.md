@@ -210,3 +210,23 @@ It does not perform scanning, exploitation, brute force, or any offensive action
 - Add MITRE ATT&CK tactic mapping
 - Add severity scoring based on event sequence
 
+
+## Dashboard
+
+Run the analysis pipeline first:
+
+python app/main.py
+
+Then start the Streamlit dashboard:
+
+streamlit run app/dashboard/streamlit_app.py
+
+The dashboard provides:
+
+- Overview metrics
+- Incident list
+- Incident detail view
+- Attack timeline table
+- Deduped alert table
+- Suppressed alert table
+- Markdown report preview
