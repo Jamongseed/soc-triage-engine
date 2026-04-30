@@ -59,6 +59,26 @@ def match_rule(event: dict[str, Any], rule: dict[str, Any]) -> dict[str, Any] | 
             evidence["matched_field"] = "event_type"
             evidence["matched_pattern"] = candidate
 
+    if "signature_contains" in conditions:
+        matched, pattern = _contains_any(
+            event.get("signature"),
+            conditions["signature_contains"],
+        )
+        if matched:
+            evidence["signature"] = event.get("signature")
+            evidence["matched_field"] = "signature"
+            evidence["matched_pattern"] = pattern
+
+    if "category_contains" in conditions:
+        matched, pattern = _contains_any(
+            event.get("category"),
+            conditions["category_contains"],
+        )
+        if matched:
+            evidence["category"] = event.get("category")
+            evidence["matched_field"] = "category"
+            evidence["matched_pattern"] = pattern
+
     if not evidence:
         return None
 

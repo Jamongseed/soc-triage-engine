@@ -1,0 +1,80 @@
+- id: IDS-SQLI-001
+  title: IDS SQL Injection Alert
+  source: suricata
+  severity: high
+  mitre:
+    - T1190
+  conditions:
+    signature_contains:
+      - "SQL Injection"
+      - "SQLi"
+  dedup:
+    key:
+      - src_ip
+      - rule_id
+    window_minutes: 10
+
+- id: IDS-XSS-001
+  title: IDS Cross-Site Scripting Alert
+  source: suricata
+  severity: medium
+  mitre:
+    - T1190
+  conditions:
+    signature_contains:
+      - "Cross Site Scripting"
+      - "XSS"
+  dedup:
+    key:
+      - src_ip
+      - rule_id
+    window_minutes: 10
+
+- id: IDS-PATH-001
+  title: IDS Directory Traversal Alert
+  source: suricata
+  severity: high
+  mitre:
+    - T1190
+  conditions:
+    signature_contains:
+      - "Directory Traversal"
+      - "Traversal"
+  dedup:
+    key:
+      - src_ip
+      - rule_id
+    window_minutes: 10
+
+- id: IDS-SSH-BRUTEFORCE-001
+  title: IDS SSH Brute Force Alert
+  source: suricata
+  severity: high
+  mitre:
+    - T1110
+  conditions:
+    signature_contains:
+      - "SSH Brute Force"
+      - "Brute Force"
+  dedup:
+    key:
+      - src_ip
+      - rule_id
+    window_minutes: 15
+
+- id: IDS-SCAN-001
+  title: IDS Network Scan Alert
+  source: suricata
+  severity: medium
+  mitre:
+    - T1595
+  conditions:
+    signature_contains:
+      - "SCAN"
+      - "Suspicious Inbound"
+      - "SSH Scan"
+  dedup:
+    key:
+      - src_ip
+      - rule_id
+    window_minutes: 30

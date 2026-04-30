@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -11,6 +12,7 @@ CONFIG_DIR = BASE_DIR / "config"
 
 NGINX_LOG = SAMPLES_DIR / "nginx_access.log"
 AUTH_LOG = SAMPLES_DIR / "auth.log"
+SURICATA_EVE_LOG = SAMPLES_DIR / "suricata_eve.json"
 ALLOWLIST = CONFIG_DIR / "allowlist.yml"
 
 
@@ -97,6 +99,39 @@ def auth_success_line(ip: str, dt: datetime, pid: int, user: str, port: int) -> 
     )
 
 
+def suricata_eve_line(
+    dt: datetime,
+    src_ip: str,
+    dest_ip: str,
+    signature: str,
+    category: str,
+    severity: int,
+    proto: str = "TCP",
+    src_port: int | None = None,
+    dest_port: int | None = None,
+) -> str:
+    event = {
+        "timestamp": dt.isoformat(timespec="seconds") + "+09:00",
+        "event_type": "alert",
+        "src_ip": src_ip,
+        "dest_ip": dest_ip,
+        "proto": proto,
+        "alert": {
+            "signature": signature,
+            "category": category,
+            "severity": severity,
+        },
+    }
+
+    if src_port is not None:
+        event["src_port"] = src_port
+
+    if dest_port is not None:
+        event["dest_port"] = dest_port
+
+    return json.dumps(event, ensure_ascii=False)
+
+
 def add_benign_web_traffic(lines: list[str], start: datetime, count: int) -> None:
     paths = [
         "/",
@@ -138,20 +173,7 @@ def add_benign_web_traffic(lines: list[str], start: datetime, count: int) -> Non
 
 
 def add_policy_suppression_web_traffic(lines: list[str], start: datetime, count: int) -> None:
-    """
-    Generate web requests that intentionally trigger WEB-SCAN-001 first,
-    then get suppressed by different suppression policy types.
-
-    Policy types covered:
-    - suppressed_rules
-    - suppressed_user_agents
-    - suppressed_paths
-    - trusted_services
-    - trusted_networks
-    - maintenance_windows
-    """
     cases = [
-        # suppressed_rules: specific rule_id + src_ip
         {
             "ip": "198.51.100.10",
             "path": "/admin",
@@ -182,8 +204,6 @@ def add_policy_suppression_web_traffic(lines: list[str], start: datetime, count:
             "ua": "curl/8.0",
             "time_base": start,
         },
-
-        # suppressed_user_agents: user-agent based policy
         {
             "ip": "192.0.2.60",
             "path": "/server-status",
@@ -208,8 +228,6 @@ def add_policy_suppression_web_traffic(lines: list[str], start: datetime, count:
             "ua": "GoogleHC/1.0",
             "time_base": start + timedelta(minutes=40),
         },
-
-        # suppressed_paths: path-based policy. curl triggers WEB-SCAN-001.
         {
             "ip": "192.0.2.70",
             "path": "/server-status",
@@ -234,8 +252,6 @@ def add_policy_suppression_web_traffic(lines: list[str], start: datetime, count:
             "ua": "curl/8.0",
             "time_base": start + timedelta(minutes=80),
         },
-
-        # trusted_services
         {
             "ip": "198.51.100.50",
             "path": "/admin",
@@ -260,8 +276,6 @@ def add_policy_suppression_web_traffic(lines: list[str], start: datetime, count:
             "ua": "StatusCake",
             "time_base": start + timedelta(minutes=120),
         },
-
-        # maintenance_windows: must fall into 04:00~04:30.
         {
             "ip": "45.12.33.200",
             "path": "/admin",
@@ -294,11 +308,6 @@ def add_policy_suppression_web_traffic(lines: list[str], start: datetime, count:
 
 
 def add_external_attack_web_traffic(lines: list[str], start: datetime, count: int) -> None:
-    """
-    Generate unsuppressed external web attacks with varied attack types.
-
-    These should remain visible in alerts/incidents.
-    """
     attack_cases = [
         {
             "path": "/../../etc/passwd",
@@ -365,8 +374,6 @@ def add_external_attack_web_traffic(lines: list[str], start: datetime, count: in
     cursor = start
 
     for i in range(count):
-        # Change source IP every 70 events to create realistic repeated campaigns,
-        # but not so aggressively that every event becomes a separate incident.
         ip = ATTACK_IPS[(i // 70) % len(ATTACK_IPS)]
         case = attack_cases[i % len(attack_cases)]
 
@@ -382,7 +389,6 @@ def add_external_attack_web_traffic(lines: list[str], start: datetime, count: in
             )
         )
 
-        # Some slow-ish spacing so dedup does not collapse everything into one alert.
         cursor += timedelta(seconds=11 + (i % 5))
 
 
@@ -407,7 +413,6 @@ def add_auth_attack_traffic(lines: list[str], start: datetime, count: int) -> No
         position = i % 25
         ip = ATTACK_IPS[block_index % len(ATTACK_IPS)]
 
-        # Every 25-event block has repeated failures and occasionally one success.
         if position == 24 and block_index % 3 == 0:
             user = "root" if ip == "198.51.100.200" else "ubuntu"
             lines.append(
@@ -454,6 +459,76 @@ def add_allowed_admin_logins(lines: list[str], start: datetime, count: int) -> N
         )
 
         cursor += timedelta(minutes=2)
+
+
+def add_suricata_eve_alerts(lines: list[str], start: datetime, count: int) -> None:
+    """
+    Generate synthetic Suricata EVE alert events.
+
+    The events intentionally share src_ip values with Nginx/auth attack traffic
+    so incident correlation can group IDS alerts with web/auth activity.
+    """
+    signatures = [
+        {
+            "signature": "ET WEB_SERVER SQL Injection Attempt",
+            "category": "Web Application Attack",
+            "severity": 1,
+            "dest_port": 80,
+        },
+        {
+            "signature": "ET WEB_SERVER Possible Cross Site Scripting Attempt",
+            "category": "Web Application Attack",
+            "severity": 2,
+            "dest_port": 80,
+        },
+        {
+            "signature": "ET WEB_SERVER Directory Traversal Attempt",
+            "category": "Web Application Attack",
+            "severity": 2,
+            "dest_port": 80,
+        },
+        {
+            "signature": "ET SCAN Suspicious Inbound to Web Server",
+            "category": "Attempted Information Leak",
+            "severity": 2,
+            "dest_port": 80,
+        },
+        {
+            "signature": "ET SCAN SSH Brute Force Attempt",
+            "category": "Attempted Administrator Privilege Gain",
+            "severity": 2,
+            "dest_port": 22,
+        },
+        {
+            "signature": "ET POLICY Possible SSH Scan",
+            "category": "Attempted Information Leak",
+            "severity": 3,
+            "dest_port": 22,
+        },
+    ]
+
+    cursor = start
+
+    for i in range(count):
+        # Same source IP family as web/auth attacks.
+        ip = ATTACK_IPS[(i // 45) % len(ATTACK_IPS)]
+        sig = signatures[i % len(signatures)]
+
+        lines.append(
+            suricata_eve_line(
+                dt=cursor,
+                src_ip=ip,
+                dest_ip="10.0.0.5",
+                signature=sig["signature"],
+                category=sig["category"],
+                severity=sig["severity"],
+                proto="TCP",
+                src_port=40000 + (i % 2000),
+                dest_port=sig["dest_port"],
+            )
+        )
+
+        cursor += timedelta(seconds=17 + (i % 4))
 
 
 def write_allowlist() -> None:
@@ -560,19 +635,21 @@ maintenance_windows:
     )
 
 
-def build_dataset(target_events: int) -> tuple[list[str], list[str]]:
+def build_dataset(target_events: int) -> tuple[list[str], list[str], list[str]]:
     if target_events < 500:
         target_events = 500
 
     nginx_lines: list[str] = []
     auth_lines: list[str] = []
+    suricata_lines: list[str] = []
 
     base = datetime(2026, 4, 30, 9, 0, 0)
 
-    nginx_target = int(target_events * 0.82)
-    auth_target = target_events - nginx_target
+    suricata_target = int(target_events * 0.10)
+    auth_target = int(target_events * 0.16)
+    nginx_target = target_events - auth_target - suricata_target
 
-    benign_count = int(target_events * 0.38)
+    benign_count = int(target_events * 0.34)
     policy_suppression_web_count = int(target_events * 0.12)
     attack_web_count = nginx_target - benign_count - policy_suppression_web_count
 
@@ -609,10 +686,17 @@ def build_dataset(target_events: int) -> tuple[list[str], list[str]]:
         admin_login_count,
     )
 
+    add_suricata_eve_alerts(
+        suricata_lines,
+        base + timedelta(hours=2, minutes=2),
+        suricata_target,
+    )
+
     nginx_lines.sort()
     auth_lines.sort()
+    suricata_lines.sort()
 
-    return nginx_lines, auth_lines
+    return nginx_lines, auth_lines, suricata_lines
 
 
 def parse_args() -> argparse.Namespace:
@@ -636,16 +720,20 @@ def main() -> None:
     SAMPLES_DIR.mkdir(exist_ok=True)
     CONFIG_DIR.mkdir(exist_ok=True)
 
-    nginx_lines, auth_lines = build_dataset(args.events)
+    nginx_lines, auth_lines, suricata_lines = build_dataset(args.events)
 
     NGINX_LOG.write_text("\n".join(nginx_lines) + "\n", encoding="utf-8")
     AUTH_LOG.write_text("\n".join(auth_lines) + "\n", encoding="utf-8")
+    SURICATA_EVE_LOG.write_text("\n".join(suricata_lines) + "\n", encoding="utf-8")
     write_allowlist()
+
+    total_events = len(nginx_lines) + len(auth_lines) + len(suricata_lines)
 
     print(f"[+] Target demo events: {args.events}")
     print(f"[+] Wrote {len(nginx_lines)} nginx log lines to {NGINX_LOG}")
     print(f"[+] Wrote {len(auth_lines)} auth log lines to {AUTH_LOG}")
-    print(f"[+] Total demo events: {len(nginx_lines) + len(auth_lines)}")
+    print(f"[+] Wrote {len(suricata_lines)} suricata eve lines to {SURICATA_EVE_LOG}")
+    print(f"[+] Total demo events: {total_events}")
     print(f"[+] Wrote suppression policy to {ALLOWLIST}")
 
 
