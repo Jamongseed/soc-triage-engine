@@ -533,6 +533,7 @@ def incident_card_html(incident: dict[str, Any]) -> str:
                 Alert Count: <b>{incident.get("alert_count", 0)}</b> |
                 Unique Rules: <b>{incident.get("unique_rule_count", 0)}</b> |
                 Confidence: <b>{incident.get("confidence_score", 0)}</b><br>
+                Sources: <b>{", ".join(incident.get("sources", [])) or "-"}</b><br>
                 First Seen: <b>{format_display_time(incident.get("first_seen"))}</b><br>
                 Last Seen: <b>{format_display_time(incident.get("last_seen"))}</b><br>
                 MITRE Techniques: <b>{", ".join(incident.get("techniques", [])) or "-"}</b><br>
@@ -656,6 +657,7 @@ def alerts_to_dataframe(alerts: list[dict[str, Any]]) -> pd.DataFrame:
                 "Alert ID": alert.get("alert_id"),
                 "Time": format_display_time(alert.get("timestamp")),
                 "Source IP": alert.get("src_ip"),
+                "Source": alert.get("source"),
                 "Severity": (alert.get("severity") or "").upper(),
                 "Rule": alert.get("rule_name"),
                 "Rule ID": alert.get("rule_id"),
@@ -681,6 +683,7 @@ def incidents_to_dataframe(incidents: list[dict[str, Any]]) -> pd.DataFrame:
             {
                 "Incident ID": incident.get("incident_id"),
                 "Source IP": incident.get("src_ip"),
+                "Sources": ", ".join(incident.get("sources", [])),
                 "Severity": (incident.get("severity") or "").upper(),
                 "Confidence": incident.get("confidence_score", 0),
                 "First Seen": format_display_time(incident.get("first_seen")),
@@ -744,30 +747,74 @@ def make_incident_severity_chart(incidents: list[dict[str, Any]]) -> go.Figure:
         "MEDIUM": 0,
         "LOW": 0,
     }
+
     for incident in incidents:
         key = (incident.get("severity") or "").upper()
         if key in counts:
             counts[key] += 1
 
+    colors = {
+        "CRITICAL": "#ef4444",
+        "HIGH": "#f97316",
+        "MEDIUM": "#facc15",
+        "LOW": "#22c55e",
+    }
+
+    labels = [severity for severity, count in counts.items() if count > 0]
+    values = [counts[severity] for severity in labels]
+    marker_colors = [colors[severity] for severity in labels]
+
+    if not values:
+        fig = go.Figure()
+        fig.update_layout(
+            template="plotly_dark",
+            margin=dict(l=10, r=10, t=10, b=10),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=320,
+            annotations=[
+                dict(
+                    text="No incidents",
+                    x=0.5,
+                    y=0.5,
+                    showarrow=False,
+                    font=dict(size=16, color="#94a3b8"),
+                )
+            ],
+        )
+        return fig
+
     fig = go.Figure(
         data=[
             go.Pie(
-                labels=list(counts.keys()),
-                values=list(counts.values()),
-                hole=0.60,
-                marker=dict(colors=["#ef4444", "#f97316", "#facc15", "#22c55e"]),
-                textinfo="label+value",
+                labels=labels,
+                values=values,
+                hole=0.62,
+                marker=dict(colors=marker_colors),
+                textinfo="percent",
+                textposition="inside",
+                hovertemplate="<b>%{label}</b><br>Incidents: %{value}<br>Share: %{percent}<extra></extra>",
             )
         ]
     )
+
     fig.update_layout(
         template="plotly_dark",
         margin=dict(l=10, r=10, t=10, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         height=320,
-        showlegend=False,
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.12,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=11),
+        ),
     )
+
     return fig
 
 
@@ -884,6 +931,47 @@ def make_alert_by_ip_chart(deduped_df: pd.DataFrame) -> go.Figure:
         yaxis_title=None,
     )
     fig.update_traces(textposition="outside")
+    return fig
+
+
+def make_alert_by_source_chart(deduped_df: pd.DataFrame) -> go.Figure:
+    if deduped_df.empty or "Source" not in deduped_df.columns:
+        fig = go.Figure()
+        fig.update_layout(template="plotly_dark", height=300)
+        return fig
+
+    chart_df = (
+        deduped_df.groupby("Source")
+        .size()
+        .reset_index(name="Count")
+        .sort_values("Count", ascending=False)
+    )
+
+    fig = px.bar(
+        chart_df,
+        x="Source",
+        y="Count",
+        text="Count",
+        color="Source",
+        color_discrete_map={
+            "nginx": "#60a5fa",
+            "authlog": "#a78bfa",
+            "suricata": "#f97316",
+        },
+    )
+
+    fig.update_layout(
+        template="plotly_dark",
+        margin=dict(l=10, r=10, t=10, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=300,
+        showlegend=False,
+        xaxis_title=None,
+        yaxis_title=None,
+    )
+    fig.update_traces(textposition="outside")
+
     return fig
 
 
@@ -1086,7 +1174,6 @@ with tab1:
     overview_left, overview_right = st.columns([1.15, 1])
 
     with overview_left:
-        st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
         st.markdown('<div class="subtle-title">Incident Summary</div>', unsafe_allow_html=True)
 
         if not filtered_incidents:
@@ -1095,22 +1182,19 @@ with tab1:
             filtered_df = incidents_to_dataframe(filtered_incidents)
             st.dataframe(filtered_df, use_container_width=True, hide_index=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
-
     with overview_right:
         c1, c2 = st.columns(2)
+
         with c1:
-            st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
             st.markdown('<div class="subtle-title">Severity Distribution</div>', unsafe_allow_html=True)
             st.plotly_chart(make_incident_severity_chart(filtered_incidents), use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+
         with c2:
-            st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
             st.markdown('<div class="subtle-title">Top Rules</div>', unsafe_allow_html=True)
             st.plotly_chart(make_top_rules_chart(deduped_df), use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="subtle-title" style="margin-top:14px;">Incident Cards</div>', unsafe_allow_html=True)
+
     if not filtered_incidents:
         st.info("No incidents available.")
     else:
@@ -1119,6 +1203,7 @@ with tab1:
             key=lambda x: (-severity_rank(x.get("severity", "")), -(x.get("alert_count") or 0)),
         ):
             st.markdown(incident_card_html(incident), unsafe_allow_html=True)
+
 
 with tab2:
     st.markdown('<div class="section-title">Incident Explorer</div>', unsafe_allow_html=True)
@@ -1146,37 +1231,31 @@ with tab2:
         with left:
             st.markdown(incident_card_html(selected_incident), unsafe_allow_html=True)
 
-            st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
             st.markdown('<div class="subtle-title">Attack Flow</div>', unsafe_allow_html=True)
             st.markdown(build_attack_flow_html(selected_incident), unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
 
-            st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
             st.markdown('<div class="subtle-title">Timeline Table</div>', unsafe_allow_html=True)
             timeline_df = timeline_to_dataframe(selected_incident)
+
             if timeline_df.empty:
                 st.info("No timeline data.")
             else:
                 st.dataframe(timeline_df, use_container_width=True, hide_index=True)
-            st.markdown('</div>', unsafe_allow_html=True)
 
         with right:
-            st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
             st.markdown(
                 f'<div class="subtle-title">Attack Stepper ({len(selected_incident.get("timeline", []))} steps)</div>',
                 unsafe_allow_html=True,
             )
             st.markdown(build_timeline_stepper_html(selected_incident), unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
 
             with st.expander("Show raw timeline cards"):
                 st.markdown(build_timeline_html(selected_incident), unsafe_allow_html=True)
 
-            st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
 
 with tab3:
     st.markdown('<div class="section-title">Alert Analytics</div>', unsafe_allow_html=True)
@@ -1184,30 +1263,30 @@ with tab3:
     alert_left, alert_right = st.columns([1.2, 1])
 
     with alert_left:
-        st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
         st.markdown('<div class="subtle-title">Deduplicated Alerts</div>', unsafe_allow_html=True)
+
         if deduped_df.empty:
             st.info("No deduplicated alerts available.")
         else:
             st.dataframe(deduped_df, use_container_width=True, hide_index=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 
     with alert_right:
-        st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
         st.markdown('<div class="subtle-title">Alerts by Severity</div>', unsafe_allow_html=True)
         st.plotly_chart(make_alert_severity_chart(deduped_df), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
+        st.markdown('<div class="subtle-title">Alerts by Source</div>', unsafe_allow_html=True)
+        st.plotly_chart(make_alert_by_source_chart(deduped_df), use_container_width=True)
+
+        st.markdown('<div style="height:12px"></div>', unsafe_allow_html=True)
+
         st.markdown('<div class="subtle-title">Alerts by Source IP</div>', unsafe_allow_html=True)
         st.plotly_chart(make_alert_by_ip_chart(deduped_df), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+
 
 with tab4:
     st.markdown('<div class="section-title">Suppressed Alerts</div>', unsafe_allow_html=True)
-    st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
 
     if suppressed_df.empty:
         st.info("No suppressed alerts.")
@@ -1221,11 +1300,9 @@ with tab4:
             mime="text/csv",
         )
 
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with tab5:
     st.markdown('<div class="section-title">Generated Report</div>', unsafe_allow_html=True)
-    st.markdown('<div class="glass-panel">', unsafe_allow_html=True)
 
     if not show_markdown_report:
         st.info("Enable report preview from the sidebar.")
@@ -1233,5 +1310,3 @@ with tab5:
         st.info("No report file found.")
     else:
         st.code(report_text, language="markdown")
-
-    st.markdown('</div>', unsafe_allow_html=True)

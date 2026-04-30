@@ -14,6 +14,7 @@ def test_generate_incident_report_contains_triage_sections():
             "unique_rule_count": 3,
             "techniques": ["T1190", "T1110", "T1078"],
             "tactics": ["Initial Access", "Credential Access"],
+            "sources": ["nginx", "authlog", "suricata"],
             "observed_stages": [
                 "web_exploitation_attempt",
                 "ssh_bruteforce",
@@ -69,3 +70,5 @@ def test_generate_incident_report_contains_triage_sections():
     assert "Containment Priority" in report
     assert "MITRE Context" in report
     assert "Possible compromise sequence detected" in report
+    assert "Sources" in report
+    assert "nginx, authlog, suricata" in report
