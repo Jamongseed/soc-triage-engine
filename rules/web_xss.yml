@@ -1,0 +1,17 @@
+id: WEB-XSS-001
+title: Cross-Site Scripting Attempt
+source: nginx
+severity: medium
+mitre:
+  - T1190
+conditions:
+  url_contains:
+    - "<script>"
+    - "javascript:"
+    - "onerror="
+    - "alert("
+dedup:
+  key:
+    - src_ip
+    - rule_id
+  window_minutes: 10

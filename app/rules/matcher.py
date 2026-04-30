@@ -1,0 +1,83 @@
+from typing import Any
+
+
+def _contains_any(value: str | None, patterns: list[str]) -> tuple[bool, str | None]:
+    """
+    Return True if value contains any pattern.
+    Case-insensitive matching.
+    """
+    if value is None:
+        return False, None
+
+    lowered_value = value.lower()
+
+    for pattern in patterns:
+        if pattern.lower() in lowered_value:
+            return True, pattern
+
+    return False, None
+
+
+def match_rule(event: dict[str, Any], rule: dict[str, Any]) -> dict[str, Any] | None:
+    """
+    Match one normalized event against one detection rule.
+
+    Current condition logic:
+    - Multiple condition fields are OR-based.
+    - If any configured condition matches, an alert is generated.
+    """
+    if event.get("source") != rule.get("source"):
+        return None
+
+    conditions = rule.get("conditions", {})
+    evidence = {}
+
+    if "url_contains" in conditions:
+        matched, pattern = _contains_any(event.get("url"), conditions["url_contains"])
+        if matched:
+            evidence["url"] = event.get("url")
+            evidence["matched_field"] = "url"
+            evidence["matched_pattern"] = pattern
+
+    if "user_agent_contains" in conditions:
+        matched, pattern = _contains_any(
+            event.get("user_agent"),
+            conditions["user_agent_contains"],
+        )
+        if matched:
+            evidence["user_agent"] = event.get("user_agent")
+            evidence["matched_field"] = "user_agent"
+            evidence["matched_pattern"] = pattern
+
+    if not evidence:
+        return None
+
+    return {
+        "rule_id": rule["id"],
+        "rule_name": rule["title"],
+        "severity": rule["severity"],
+        "timestamp": event["timestamp"],
+        "source": event["source"],
+        "event_type": event["event_type"],
+        "src_ip": event.get("src_ip"),
+        "mitre": rule.get("mitre", []),
+        "evidence": evidence,
+        "raw_event": event,
+    }
+
+
+def match_rules(events: list[dict[str, Any]], rules: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Match normalized events against all detection rules.
+    """
+    alerts = []
+
+    for event in events:
+        for rule in rules:
+            alert = match_rule(event, rule)
+
+            if alert is not None:
+                alert["alert_id"] = f"A-{len(alerts) + 1:06d}"
+                alerts.append(alert)
+
+    return alerts

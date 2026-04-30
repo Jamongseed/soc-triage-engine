@@ -1,0 +1,19 @@
+id: WEB-SQLI-001
+title: SQL Injection Attempt
+source: nginx
+severity: high
+mitre:
+  - T1190
+conditions:
+  url_contains:
+    - "' OR '1'='1"
+    - "UNION SELECT"
+    - "sleep("
+    - "benchmark("
+  user_agent_contains:
+    - "sqlmap"
+dedup:
+  key:
+    - src_ip
+    - rule_id
+  window_minutes: 10

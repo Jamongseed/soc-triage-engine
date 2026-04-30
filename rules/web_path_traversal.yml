@@ -1,0 +1,17 @@
+id: WEB-PATH-001
+title: Path Traversal Attempt
+source: nginx
+severity: high
+mitre:
+  - T1190
+conditions:
+  url_contains:
+    - "../"
+    - "..%2f"
+    - "/etc/passwd"
+    - "boot.ini"
+dedup:
+  key:
+    - src_ip
+    - rule_id
+  window_minutes: 10
