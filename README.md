@@ -1,5 +1,7 @@
 # SOC Alert Triage Engine
 
+[한국어](README.ko.md) | English
+
 ![Tests](https://github.com/Jamongseed/soc-triage-engine/actions/workflows/test.yml/badge.svg)
 
 A multi-source SOC alert triage and incident correlation project that parses Nginx access logs, Linux auth logs, and Suricata EVE JSON alerts, then applies rule-based detection, policy-based suppression, deduplication, sequence-based severity scoring, MITRE ATT&CK enrichment, and dashboard/report generation.
