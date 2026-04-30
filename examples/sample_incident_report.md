@@ -1,6 +1,6 @@
 # SOC Alert Triage Report
 
-- Generated At: `2026-05-01T00:41:05`
+- Generated At: `2026-05-01T00:49:53`
 - Total Incidents: `12`
 - Raw Alerts: `395`
 - Deduped Alerts: `39`
@@ -29,11 +29,19 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `7` |
 | Unique Rule Count | `7` |
 | MITRE Techniques | `T1078, T1110, T1190, T1595` |
+| MITRE Tactics | `Credential Access, Defense Evasion, Initial Access, Persistence, Privilege Escalation, Reconnaissance` |
 | Observed Stages | `web_scan, web_exploitation_attempt, ssh_failed_login, ssh_bruteforce, ssh_successful_login` |
 
 #### Summary
 
 45.12.33.10 showed a possible compromise sequence: web exploitation attempts, SSH brute force activity, and successful SSH login.
+
+#### MITRE Context
+
+- `T1078` Valid Accounts → Defense Evasion, Initial Access, Persistence, Privilege Escalation
+- `T1110` Brute Force → Credential Access
+- `T1190` Exploit Public-Facing Application → Initial Access
+- `T1595` Active Scanning → Reconnaissance
 
 #### Scoring Reasons
 
@@ -77,11 +85,16 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `1` |
 | Unique Rule Count | `1` |
 | MITRE Techniques | `T1190` |
+| MITRE Tactics | `Initial Access` |
 | Observed Stages | `web_exploitation_attempt` |
 
 #### Summary
 
 198.51.100.23 triggered SQL Injection Attempt.
+
+#### MITRE Context
+
+- `T1190` Exploit Public-Facing Application → Initial Access
 
 #### Scoring Reasons
 
@@ -111,11 +124,16 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `1` |
 | Unique Rule Count | `1` |
 | MITRE Techniques | `T1190` |
+| MITRE Tactics | `Initial Access` |
 | Observed Stages | `web_exploitation_attempt` |
 
 #### Summary
 
 192.0.2.44 triggered Cross-Site Scripting Attempt.
+
+#### MITRE Context
+
+- `T1190` Exploit Public-Facing Application → Initial Access
 
 #### Scoring Reasons
 
@@ -145,11 +163,17 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `2` |
 | Unique Rule Count | `2` |
 | MITRE Techniques | `T1190, T1595` |
+| MITRE Tactics | `Initial Access, Reconnaissance` |
 | Observed Stages | `web_scan, web_exploitation_attempt` |
 
 #### Summary
 
 203.0.113.88 triggered multiple suspicious activities: Path Traversal Attempt, Web Scanner Activity.
+
+#### MITRE Context
+
+- `T1190` Exploit Public-Facing Application → Initial Access
+- `T1595` Active Scanning → Reconnaissance
 
 #### Scoring Reasons
 
@@ -182,11 +206,18 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `6` |
 | Unique Rule Count | `6` |
 | MITRE Techniques | `T1110, T1190, T1595` |
+| MITRE Tactics | `Credential Access, Initial Access, Reconnaissance` |
 | Observed Stages | `web_scan, web_exploitation_attempt, ssh_failed_login, ssh_bruteforce` |
 
 #### Summary
 
 91.240.118.22 triggered multiple suspicious activities: Cross-Site Scripting Attempt, Path Traversal Attempt, SQL Injection Attempt, SSH Brute Force Threshold, SSH Failed Login, Web Scanner Activity.
+
+#### MITRE Context
+
+- `T1110` Brute Force → Credential Access
+- `T1190` Exploit Public-Facing Application → Initial Access
+- `T1595` Active Scanning → Reconnaissance
 
 #### Scoring Reasons
 
@@ -226,11 +257,17 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `3` |
 | Unique Rule Count | `3` |
 | MITRE Techniques | `T1110, T1190` |
+| MITRE Tactics | `Credential Access, Initial Access` |
 | Observed Stages | `web_exploitation_attempt, ssh_failed_login, ssh_bruteforce` |
 
 #### Summary
 
 104.248.90.77 triggered multiple suspicious activities: SQL Injection Attempt, SSH Brute Force Threshold, SSH Failed Login.
+
+#### MITRE Context
+
+- `T1110` Brute Force → Credential Access
+- `T1190` Exploit Public-Facing Application → Initial Access
 
 #### Scoring Reasons
 
@@ -265,11 +302,16 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `1` |
 | Unique Rule Count | `1` |
 | MITRE Techniques | `T1190` |
+| MITRE Tactics | `Initial Access` |
 | Observed Stages | `web_exploitation_attempt` |
 
 #### Summary
 
 45.155.205.111 triggered Cross-Site Scripting Attempt.
+
+#### MITRE Context
+
+- `T1190` Exploit Public-Facing Application → Initial Access
 
 #### Scoring Reasons
 
@@ -299,11 +341,18 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `4` |
 | Unique Rule Count | `4` |
 | MITRE Techniques | `T1110, T1190, T1595` |
+| MITRE Tactics | `Credential Access, Initial Access, Reconnaissance` |
 | Observed Stages | `web_scan, web_exploitation_attempt, ssh_failed_login, ssh_bruteforce` |
 
 #### Summary
 
 185.220.101.15 triggered multiple suspicious activities: Path Traversal Attempt, SSH Brute Force Threshold, SSH Failed Login, Web Scanner Activity.
+
+#### MITRE Context
+
+- `T1110` Brute Force → Credential Access
+- `T1190` Exploit Public-Facing Application → Initial Access
+- `T1595` Active Scanning → Reconnaissance
 
 #### Scoring Reasons
 
@@ -341,11 +390,19 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `7` |
 | Unique Rule Count | `7` |
 | MITRE Techniques | `T1078, T1110, T1190, T1595` |
+| MITRE Tactics | `Credential Access, Defense Evasion, Initial Access, Persistence, Privilege Escalation, Reconnaissance` |
 | Observed Stages | `web_scan, web_exploitation_attempt, ssh_failed_login, ssh_bruteforce, ssh_successful_login` |
 
 #### Summary
 
 167.99.42.31 showed a possible compromise sequence: web exploitation attempts, SSH brute force activity, and successful SSH login.
+
+#### MITRE Context
+
+- `T1078` Valid Accounts → Defense Evasion, Initial Access, Persistence, Privilege Escalation
+- `T1110` Brute Force → Credential Access
+- `T1190` Exploit Public-Facing Application → Initial Access
+- `T1595` Active Scanning → Reconnaissance
 
 #### Scoring Reasons
 
@@ -389,11 +446,17 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `3` |
 | Unique Rule Count | `3` |
 | MITRE Techniques | `T1078, T1110` |
+| MITRE Tactics | `Credential Access, Defense Evasion, Initial Access, Persistence, Privilege Escalation` |
 | Observed Stages | `ssh_failed_login, ssh_bruteforce, ssh_successful_login` |
 
 #### Summary
 
 198.51.100.200 showed SSH brute force activity followed by successful login.
+
+#### MITRE Context
+
+- `T1078` Valid Accounts → Defense Evasion, Initial Access, Persistence, Privilege Escalation
+- `T1110` Brute Force → Credential Access
 
 #### Scoring Reasons
 
@@ -428,11 +491,16 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `2` |
 | Unique Rule Count | `2` |
 | MITRE Techniques | `T1110` |
+| MITRE Tactics | `Credential Access` |
 | Observed Stages | `ssh_failed_login, ssh_bruteforce` |
 
 #### Summary
 
 203.0.113.90 triggered multiple suspicious activities: SSH Brute Force Threshold, SSH Failed Login.
+
+#### MITRE Context
+
+- `T1110` Brute Force → Credential Access
 
 #### Scoring Reasons
 
@@ -464,11 +532,16 @@ The engine grouped raw security alerts into incident-level findings, deduplicate
 | Alert Count | `2` |
 | Unique Rule Count | `2` |
 | MITRE Techniques | `T1110` |
+| MITRE Tactics | `Credential Access` |
 | Observed Stages | `ssh_failed_login, ssh_bruteforce` |
 
 #### Summary
 
 203.0.113.91 triggered multiple suspicious activities: SSH Brute Force Threshold, SSH Failed Login.
+
+#### MITRE Context
+
+- `T1110` Brute Force → Credential Access
 
 #### Scoring Reasons
 

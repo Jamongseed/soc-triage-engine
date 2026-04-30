@@ -17,6 +17,13 @@ def _format_evidence(evidence: dict[str, Any]) -> str:
     return f"{matched_field}={matched_pattern}"
 
 
+def _format_list(values: list[str]) -> str:
+    if not values:
+        return "None"
+
+    return ", ".join(values)
+
+
 def generate_incident_report(
     incidents: list[dict[str, Any]],
     raw_alert_count: int,
@@ -62,7 +69,8 @@ def generate_incident_report(
                 f"- Low Incidents: `{low_count}`",
                 "",
                 "The engine grouped raw security alerts into incident-level findings, "
-                "deduplicated repeated alerts, and reconstructed attack timelines for analyst review.",
+                "deduplicated repeated alerts, reconstructed attack timelines, and applied "
+                "sequence-based severity scoring for analyst review.",
                 "",
             ]
         )
@@ -83,15 +91,44 @@ def generate_incident_report(
                 "|---|---|",
                 f"| Source IP | `{incident['src_ip']}` |",
                 f"| Severity | `{incident['severity']}` |",
+                f"| Confidence Score | `{incident.get('confidence_score', 0)}` |",
                 f"| First Seen | `{incident['first_seen']}` |",
                 f"| Last Seen | `{incident['last_seen']}` |",
                 f"| Alert Count | `{incident['alert_count']}` |",
                 f"| Unique Rule Count | `{incident['unique_rule_count']}` |",
                 f"| MITRE Techniques | `{_format_mitre_techniques(incident.get('techniques', []))}` |",
+                f"| MITRE Tactics | `{_format_list(incident.get('tactics', []))}` |",
+                f"| Observed Stages | `{_format_list(incident.get('observed_stages', []))}` |",
                 "",
                 "#### Summary",
                 "",
                 incident["summary"],
+                "",
+                "#### MITRE Context",
+                "",
+            ]
+        )
+
+        for detail in incident.get("technique_details", []):
+            tactics = ", ".join(detail.get("tactics", []))
+            lines.append(
+                f"- `{detail.get('technique')}` {detail.get('name')} "
+                f"→ {tactics}"
+            )
+
+        lines.extend(
+            [
+                "",
+                "#### Scoring Reasons",
+                "",
+            ]
+        )
+
+        for reason in incident.get("scoring_reasons", []):
+            lines.append(f"- {reason}")
+
+        lines.extend(
+            [
                 "",
                 "#### Attack Timeline",
                 "",

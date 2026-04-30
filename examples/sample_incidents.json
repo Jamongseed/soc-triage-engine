@@ -32,6 +32,47 @@
       "T1190",
       "T1595"
     ],
+    "tactics": [
+      "Credential Access",
+      "Defense Evasion",
+      "Initial Access",
+      "Persistence",
+      "Privilege Escalation",
+      "Reconnaissance"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1078",
+        "name": "Valid Accounts",
+        "tactics": [
+          "Defense Evasion",
+          "Initial Access",
+          "Persistence",
+          "Privilege Escalation"
+        ]
+      },
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      },
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      },
+      {
+        "technique": "T1595",
+        "name": "Active Scanning",
+        "tactics": [
+          "Reconnaissance"
+        ]
+      }
+    ],
     "summary": "45.12.33.10 showed a possible compromise sequence: web exploitation attempts, SSH brute force activity, and successful SSH login.",
     "alerts": [
       {
@@ -600,6 +641,18 @@
     "techniques": [
       "T1190"
     ],
+    "tactics": [
+      "Initial Access"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      }
+    ],
     "summary": "198.51.100.23 triggered SQL Injection Attempt.",
     "alerts": [
       {
@@ -726,6 +779,18 @@
     "techniques": [
       "T1190"
     ],
+    "tactics": [
+      "Initial Access"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      }
+    ],
     "summary": "192.0.2.44 triggered Cross-Site Scripting Attempt.",
     "alerts": [
       {
@@ -847,6 +912,26 @@
     "techniques": [
       "T1190",
       "T1595"
+    ],
+    "tactics": [
+      "Initial Access",
+      "Reconnaissance"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      },
+      {
+        "technique": "T1595",
+        "name": "Active Scanning",
+        "tactics": [
+          "Reconnaissance"
+        ]
+      }
     ],
     "summary": "203.0.113.88 triggered multiple suspicious activities: Path Traversal Attempt, Web Scanner Activity.",
     "alerts": [
@@ -1066,6 +1151,34 @@
       "T1110",
       "T1190",
       "T1595"
+    ],
+    "tactics": [
+      "Credential Access",
+      "Initial Access",
+      "Reconnaissance"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      },
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      },
+      {
+        "technique": "T1595",
+        "name": "Active Scanning",
+        "tactics": [
+          "Reconnaissance"
+        ]
+      }
     ],
     "summary": "91.240.118.22 triggered multiple suspicious activities: Cross-Site Scripting Attempt, Path Traversal Attempt, SQL Injection Attempt, SSH Brute Force Threshold, SSH Failed Login, Web Scanner Activity.",
     "alerts": [
@@ -1595,6 +1708,26 @@
       "T1110",
       "T1190"
     ],
+    "tactics": [
+      "Credential Access",
+      "Initial Access"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      },
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      }
+    ],
     "summary": "104.248.90.77 triggered multiple suspicious activities: SQL Injection Attempt, SSH Brute Force Threshold, SSH Failed Login.",
     "alerts": [
       {
@@ -1891,6 +2024,18 @@
     "techniques": [
       "T1190"
     ],
+    "tactics": [
+      "Initial Access"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      }
+    ],
     "summary": "45.155.205.111 triggered Cross-Site Scripting Attempt.",
     "alerts": [
       {
@@ -2008,6 +2153,34 @@
       "T1110",
       "T1190",
       "T1595"
+    ],
+    "tactics": [
+      "Credential Access",
+      "Initial Access",
+      "Reconnaissance"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      },
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      },
+      {
+        "technique": "T1595",
+        "name": "Active Scanning",
+        "tactics": [
+          "Reconnaissance"
+        ]
+      }
     ],
     "summary": "185.220.101.15 triggered multiple suspicious activities: Path Traversal Attempt, SSH Brute Force Threshold, SSH Failed Login, Web Scanner Activity.",
     "alerts": [
@@ -2429,6 +2602,47 @@
       "T1110",
       "T1190",
       "T1595"
+    ],
+    "tactics": [
+      "Credential Access",
+      "Defense Evasion",
+      "Initial Access",
+      "Persistence",
+      "Privilege Escalation",
+      "Reconnaissance"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1078",
+        "name": "Valid Accounts",
+        "tactics": [
+          "Defense Evasion",
+          "Initial Access",
+          "Persistence",
+          "Privilege Escalation"
+        ]
+      },
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      },
+      {
+        "technique": "T1190",
+        "name": "Exploit Public-Facing Application",
+        "tactics": [
+          "Initial Access"
+        ]
+      },
+      {
+        "technique": "T1595",
+        "name": "Active Scanning",
+        "tactics": [
+          "Reconnaissance"
+        ]
+      }
     ],
     "summary": "167.99.42.31 showed a possible compromise sequence: web exploitation attempts, SSH brute force activity, and successful SSH login.",
     "alerts": [
@@ -3016,6 +3230,32 @@
       "T1078",
       "T1110"
     ],
+    "tactics": [
+      "Credential Access",
+      "Defense Evasion",
+      "Initial Access",
+      "Persistence",
+      "Privilege Escalation"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1078",
+        "name": "Valid Accounts",
+        "tactics": [
+          "Defense Evasion",
+          "Initial Access",
+          "Persistence",
+          "Privilege Escalation"
+        ]
+      },
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      }
+    ],
     "summary": "198.51.100.200 showed SSH brute force activity followed by successful login.",
     "alerts": [
       {
@@ -3291,6 +3531,18 @@
     "techniques": [
       "T1110"
     ],
+    "tactics": [
+      "Credential Access"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      }
+    ],
     "summary": "203.0.113.90 triggered multiple suspicious activities: SSH Brute Force Threshold, SSH Failed Login.",
     "alerts": [
       {
@@ -3485,6 +3737,18 @@
     "unique_rule_count": 2,
     "techniques": [
       "T1110"
+    ],
+    "tactics": [
+      "Credential Access"
+    ],
+    "technique_details": [
+      {
+        "technique": "T1110",
+        "name": "Brute Force",
+        "tactics": [
+          "Credential Access"
+        ]
+      }
     ],
     "summary": "203.0.113.91 triggered multiple suspicious activities: SSH Brute Force Threshold, SSH Failed Login.",
     "alerts": [

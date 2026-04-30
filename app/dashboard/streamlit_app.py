@@ -430,6 +430,7 @@ def incident_card_html(incident: dict[str, Any]) -> str:
                 First Seen: <b>{format_display_time(incident.get("first_seen"))}</b><br>
                 Last Seen: <b>{format_display_time(incident.get("last_seen"))}</b><br>
                 MITRE Techniques: <b>{", ".join(incident.get("techniques", [])) or "-"}</b><br>
+                MITRE Tactics: <b>{", ".join(incident.get("tactics", [])) or "-"}</b><br>
                 Observed Stages: <b>{", ".join(incident.get("observed_stages", [])) or "-"}</b>
             </div>
             <div class="incident-summary">{incident.get("summary", "-")}</div>
@@ -511,6 +512,7 @@ def incidents_to_dataframe(incidents: list[dict[str, Any]]) -> pd.DataFrame:
                 "Alert Count": incident.get("alert_count"),
                 "Unique Rules": incident.get("unique_rule_count"),
                 "MITRE Techniques": ", ".join(incident.get("techniques", [])),
+                "MITRE Tactics": ", ".join(incident.get("tactics", [])),
                 "Observed Stages": ", ".join(incident.get("observed_stages", [])),
                 "Summary": incident.get("summary"),
             }

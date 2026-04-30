@@ -1,43 +1,31 @@
 from collections import defaultdict
-from datetime import datetime
 from typing import Any
 
-
-SEVERITY_SCORE = {
-    "low": 1,
-    "medium": 2,
-    "high": 3,
-    "critical": 4,
-}
+from scoring.mitre import enrich_mitre_context
+from scoring.sequence import calculate_sequence_score
 
 
-def _parse_timestamp(timestamp: str) -> datetime:
-    return datetime.fromisoformat(timestamp)
-
-
-def _calculate_incident_severity(alerts: list[dict[str, Any]]) -> str:
-    """
-    Calculate incident severity from related alerts.
-
-    Rule:
-    - If one source IP triggers 3 or more different rule types, escalate to critical.
-    - Otherwise use the highest alert severity.
-    """
-    unique_rules = {alert["rule_id"] for alert in alerts}
-    max_score = max(SEVERITY_SCORE.get(alert["severity"], 1) for alert in alerts)
-
-    if len(unique_rules) >= 3:
-        return "critical"
-
-    for severity, score in SEVERITY_SCORE.items():
-        if score == max_score:
-            return severity
-
-    return "low"
-
-
-def _build_summary(src_ip: str, alerts: list[dict[str, Any]]) -> str:
+def _build_summary(src_ip: str, alerts: list[dict[str, Any]], score_result: dict[str, Any]) -> str:
     rule_names = sorted({alert["rule_name"] for alert in alerts})
+    observed_stages = score_result.get("observed_stages", [])
+
+    if (
+        "web_exploitation_attempt" in observed_stages
+        and "ssh_bruteforce" in observed_stages
+        and "ssh_successful_login" in observed_stages
+    ):
+        return (
+            f"{src_ip} showed a possible compromise sequence: "
+            "web exploitation attempts, SSH brute force activity, and successful SSH login."
+        )
+
+    if (
+        "ssh_bruteforce" in observed_stages
+        and "ssh_successful_login" in observed_stages
+    ):
+        return (
+            f"{src_ip} showed SSH brute force activity followed by successful login."
+        )
 
     if len(rule_names) == 1:
         return f"{src_ip} triggered {rule_names[0]}."
@@ -61,6 +49,7 @@ def correlate_alerts_by_src_ip(alerts: list[dict[str, Any]]) -> list[dict[str, A
         sorted_alerts = sorted(related_alerts, key=lambda alert: alert["timestamp"])
         first_seen = sorted_alerts[0]["timestamp"]
         last_seen = sorted_alerts[-1]["timestamp"]
+
         techniques = sorted(
             {
                 technique
@@ -69,17 +58,25 @@ def correlate_alerts_by_src_ip(alerts: list[dict[str, Any]]) -> list[dict[str, A
             }
         )
 
+        mitre_context = enrich_mitre_context(techniques)
+        score_result = calculate_sequence_score(sorted_alerts)
+
         incidents.append(
             {
                 "incident_id": f"INC-{index:06d}",
                 "src_ip": src_ip,
-                "severity": _calculate_incident_severity(sorted_alerts),
+                "severity": score_result["severity"],
+                "confidence_score": score_result["confidence_score"],
+                "observed_stages": score_result["observed_stages"],
+                "scoring_reasons": score_result["scoring_reasons"],
                 "first_seen": first_seen,
                 "last_seen": last_seen,
                 "alert_count": len(sorted_alerts),
                 "unique_rule_count": len({alert["rule_id"] for alert in sorted_alerts}),
-                "techniques": techniques,
-                "summary": _build_summary(src_ip, sorted_alerts),
+                "techniques": mitre_context["techniques"],
+                "tactics": mitre_context["tactics"],
+                "technique_details": mitre_context["technique_details"],
+                "summary": _build_summary(src_ip, sorted_alerts, score_result),
                 "alerts": sorted_alerts,
             }
         )
