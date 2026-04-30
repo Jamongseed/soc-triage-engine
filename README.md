@@ -12,6 +12,20 @@ Modern SOC environments often receive large volumes of repetitive alerts from mu
 
 The pipeline converts raw logs into normalized events, applies detection rules and threshold logic, suppresses known-benign alerts, deduplicates repeated alerts by rule-specific windows, correlates alerts by source IP, reconstructs attack timelines, enriches incidents with MITRE ATT&CK context, and outputs both JSON artifacts and a Markdown incident report.
 
+## Dashboard Preview
+
+### Executive Overview
+
+![Dashboard Overview](docs/dashboard_overview.png)
+
+### Incident Explorer
+
+![Incident Explorer](docs/incident_explorer.png)
+
+### Alert Analytics
+
+![Alert Analytics](docs/alert_analytics.png)
+
 ## Key Features
 
 - Multi-source log parsing
