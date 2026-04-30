@@ -10,6 +10,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/../../etc/passwd",
       "matched_field": "url",
@@ -44,7 +51,12 @@
       "A-000223",
       "A-000225"
     ],
-    "dedup_summary": "8 repeated alerts merged for 45.12.33.10 / WEB-PATH-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "45.12.33.10",
+      "WEB-PATH-001"
+    ],
+    "dedup_summary": "8 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-SCAN-001",
@@ -58,6 +70,13 @@
       "T1595",
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 30
+    },
     "evidence": {
       "user_agent": "curl/8.0",
       "matched_field": "user_agent",
@@ -92,7 +111,12 @@
       "A-000224",
       "A-000226"
     ],
-    "dedup_summary": "8 repeated alerts merged for 45.12.33.10 / WEB-SCAN-001"
+    "dedup_window_minutes": 30,
+    "dedup_key": [
+      "45.12.33.10",
+      "WEB-SCAN-001"
+    ],
+    "dedup_summary": "8 repeated alerts merged within 30 minutes"
   },
   {
     "rule_id": "WEB-SQLI-001",
@@ -105,6 +129,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/product?id=1' OR '1'='1",
       "matched_field": "user_agent",
@@ -144,7 +175,12 @@
       "A-000237",
       "A-000238"
     ],
-    "dedup_summary": "12 repeated alerts merged for 45.12.33.10 / WEB-SQLI-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "45.12.33.10",
+      "WEB-SQLI-001"
+    ],
+    "dedup_summary": "12 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-XSS-001",
@@ -157,6 +193,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/search?q=<script>alert(1)</script>",
       "matched_field": "url",
@@ -189,7 +232,12 @@
       "A-000243",
       "A-000244"
     ],
-    "dedup_summary": "6 repeated alerts merged for 45.12.33.10 / WEB-XSS-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "45.12.33.10",
+      "WEB-XSS-001"
+    ],
+    "dedup_summary": "6 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-FAIL-001",
@@ -202,6 +250,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -233,7 +288,12 @@
       "A-000303",
       "A-000304"
     ],
-    "dedup_summary": "8 repeated alerts merged for 45.12.33.10 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "45.12.33.10",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "8 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -246,6 +306,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -292,6 +359,11 @@
     "related_alert_ids": [
       "A-000388"
     ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "45.12.33.10",
+      "SSH-BRUTEFORCE-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -305,6 +377,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -329,6 +408,11 @@
     "related_alert_ids": [
       "A-000305"
     ],
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "45.12.33.10",
+      "SSH-SUCCESS-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -342,6 +426,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/product?id=1' OR '1'='1",
       "matched_field": "user_agent",
@@ -403,7 +494,12 @@
       "A-000157",
       "A-000158"
     ],
-    "dedup_summary": "34 repeated alerts merged for 198.51.100.23 / WEB-SQLI-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "198.51.100.23",
+      "WEB-SQLI-001"
+    ],
+    "dedup_summary": "34 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-XSS-001",
@@ -416,6 +512,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/search?q=<script>alert(1)</script>",
       "matched_field": "url",
@@ -470,7 +573,12 @@
       "A-000123",
       "A-000124"
     ],
-    "dedup_summary": "28 repeated alerts merged for 192.0.2.44 / WEB-XSS-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "192.0.2.44",
+      "WEB-XSS-001"
+    ],
+    "dedup_summary": "28 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-PATH-001",
@@ -483,6 +591,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/../../etc/passwd",
       "matched_field": "url",
@@ -535,7 +650,12 @@
       "A-000207",
       "A-000209"
     ],
-    "dedup_summary": "26 repeated alerts merged for 203.0.113.88 / WEB-PATH-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "203.0.113.88",
+      "WEB-PATH-001"
+    ],
+    "dedup_summary": "26 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-SCAN-001",
@@ -549,6 +669,13 @@
       "T1595",
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 30
+    },
     "evidence": {
       "user_agent": "curl/8.0",
       "matched_field": "user_agent",
@@ -601,7 +728,12 @@
       "A-000208",
       "A-000210"
     ],
-    "dedup_summary": "26 repeated alerts merged for 203.0.113.88 / WEB-SCAN-001"
+    "dedup_window_minutes": 30,
+    "dedup_key": [
+      "203.0.113.88",
+      "WEB-SCAN-001"
+    ],
+    "dedup_summary": "26 repeated alerts merged within 30 minutes"
   },
   {
     "rule_id": "WEB-PATH-001",
@@ -614,6 +746,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/../../etc/passwd",
       "matched_field": "url",
@@ -648,7 +787,12 @@
       "A-000275",
       "A-000277"
     ],
-    "dedup_summary": "8 repeated alerts merged for 91.240.118.22 / WEB-PATH-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "91.240.118.22",
+      "WEB-PATH-001"
+    ],
+    "dedup_summary": "8 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-SCAN-001",
@@ -662,6 +806,13 @@
       "T1595",
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 30
+    },
     "evidence": {
       "user_agent": "curl/8.0",
       "matched_field": "user_agent",
@@ -696,7 +847,12 @@
       "A-000276",
       "A-000278"
     ],
-    "dedup_summary": "8 repeated alerts merged for 91.240.118.22 / WEB-SCAN-001"
+    "dedup_window_minutes": 30,
+    "dedup_key": [
+      "91.240.118.22",
+      "WEB-SCAN-001"
+    ],
+    "dedup_summary": "8 repeated alerts merged within 30 minutes"
   },
   {
     "rule_id": "WEB-SQLI-001",
@@ -709,6 +865,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/product?id=1' OR '1'='1",
       "matched_field": "user_agent",
@@ -748,7 +911,12 @@
       "A-000289",
       "A-000290"
     ],
-    "dedup_summary": "12 repeated alerts merged for 91.240.118.22 / WEB-SQLI-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "91.240.118.22",
+      "WEB-SQLI-001"
+    ],
+    "dedup_summary": "12 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-XSS-001",
@@ -761,6 +929,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/search?q=<script>alert(1)</script>",
       "matched_field": "url",
@@ -793,7 +968,12 @@
       "A-000295",
       "A-000296"
     ],
-    "dedup_summary": "6 repeated alerts merged for 91.240.118.22 / WEB-XSS-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "91.240.118.22",
+      "WEB-XSS-001"
+    ],
+    "dedup_summary": "6 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-FAIL-001",
@@ -806,6 +986,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -843,7 +1030,12 @@
       "A-000318",
       "A-000319"
     ],
-    "dedup_summary": "14 repeated alerts merged for 91.240.118.22 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "91.240.118.22",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "14 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -856,6 +1048,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -908,6 +1107,11 @@
     "related_alert_ids": [
       "A-000389"
     ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "91.240.118.22",
+      "SSH-BRUTEFORCE-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -921,6 +1125,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/product?id=1' OR '1'='1",
       "matched_field": "user_agent",
@@ -970,7 +1181,12 @@
       "A-000021",
       "A-000022"
     ],
-    "dedup_summary": "22 repeated alerts merged for 104.248.90.77 / WEB-SQLI-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "104.248.90.77",
+      "WEB-SQLI-001"
+    ],
+    "dedup_summary": "22 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-FAIL-001",
@@ -983,6 +1199,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -1015,7 +1238,12 @@
       "A-000327",
       "A-000328"
     ],
-    "dedup_summary": "9 repeated alerts merged for 104.248.90.77 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "104.248.90.77",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "9 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -1028,6 +1256,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -1075,6 +1310,11 @@
     "related_alert_ids": [
       "A-000390"
     ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "104.248.90.77",
+      "SSH-BRUTEFORCE-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -1088,6 +1328,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/search?q=<script>alert(1)</script>",
       "matched_field": "url",
@@ -1132,7 +1379,12 @@
       "A-000261",
       "A-000262"
     ],
-    "dedup_summary": "18 repeated alerts merged for 45.155.205.111 / WEB-XSS-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "45.155.205.111",
+      "WEB-XSS-001"
+    ],
+    "dedup_summary": "18 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-PATH-001",
@@ -1145,6 +1397,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/../../etc/passwd",
       "matched_field": "url",
@@ -1191,7 +1450,12 @@
       "A-000093",
       "A-000095"
     ],
-    "dedup_summary": "20 repeated alerts merged for 185.220.101.15 / WEB-PATH-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "185.220.101.15",
+      "WEB-PATH-001"
+    ],
+    "dedup_summary": "20 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-SCAN-001",
@@ -1205,6 +1469,13 @@
       "T1595",
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 30
+    },
     "evidence": {
       "user_agent": "curl/8.0",
       "matched_field": "user_agent",
@@ -1251,7 +1522,12 @@
       "A-000094",
       "A-000096"
     ],
-    "dedup_summary": "20 repeated alerts merged for 185.220.101.15 / WEB-SCAN-001"
+    "dedup_window_minutes": 30,
+    "dedup_key": [
+      "185.220.101.15",
+      "WEB-SCAN-001"
+    ],
+    "dedup_summary": "20 repeated alerts merged within 30 minutes"
   },
   {
     "rule_id": "SSH-FAIL-001",
@@ -1264,6 +1540,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -1305,7 +1588,12 @@
       "A-000345",
       "A-000346"
     ],
-    "dedup_summary": "18 repeated alerts merged for 185.220.101.15 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "185.220.101.15",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "18 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -1318,6 +1606,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -1374,6 +1669,11 @@
     "related_alert_ids": [
       "A-000391"
     ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "185.220.101.15",
+      "SSH-BRUTEFORCE-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -1387,6 +1687,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/../../etc/passwd",
       "matched_field": "url",
@@ -1421,7 +1728,12 @@
       "A-000035",
       "A-000037"
     ],
-    "dedup_summary": "8 repeated alerts merged for 167.99.42.31 / WEB-PATH-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "167.99.42.31",
+      "WEB-PATH-001"
+    ],
+    "dedup_summary": "8 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-SCAN-001",
@@ -1435,6 +1747,13 @@
       "T1595",
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 30
+    },
     "evidence": {
       "user_agent": "curl/8.0",
       "matched_field": "user_agent",
@@ -1469,7 +1788,12 @@
       "A-000036",
       "A-000038"
     ],
-    "dedup_summary": "8 repeated alerts merged for 167.99.42.31 / WEB-SCAN-001"
+    "dedup_window_minutes": 30,
+    "dedup_key": [
+      "167.99.42.31",
+      "WEB-SCAN-001"
+    ],
+    "dedup_summary": "8 repeated alerts merged within 30 minutes"
   },
   {
     "rule_id": "WEB-SQLI-001",
@@ -1482,6 +1806,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/product?id=1' OR '1'='1",
       "matched_field": "user_agent",
@@ -1521,7 +1852,12 @@
       "A-000049",
       "A-000050"
     ],
-    "dedup_summary": "12 repeated alerts merged for 167.99.42.31 / WEB-SQLI-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "167.99.42.31",
+      "WEB-SQLI-001"
+    ],
+    "dedup_summary": "12 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "WEB-XSS-001",
@@ -1534,6 +1870,13 @@
     "mitre": [
       "T1190"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "url": "/search?q=<script>alert(1)</script>",
       "matched_field": "url",
@@ -1566,7 +1909,12 @@
       "A-000055",
       "A-000056"
     ],
-    "dedup_summary": "6 repeated alerts merged for 167.99.42.31 / WEB-XSS-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "167.99.42.31",
+      "WEB-XSS-001"
+    ],
+    "dedup_summary": "6 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-FAIL-001",
@@ -1579,6 +1927,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -1614,7 +1969,12 @@
       "A-000357",
       "A-000358"
     ],
-    "dedup_summary": "12 repeated alerts merged for 167.99.42.31 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "167.99.42.31",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "12 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -1627,6 +1987,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -1677,6 +2044,11 @@
     "related_alert_ids": [
       "A-000392"
     ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "167.99.42.31",
+      "SSH-BRUTEFORCE-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -1690,6 +2062,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -1714,6 +2093,11 @@
     "related_alert_ids": [
       "A-000359"
     ],
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "167.99.42.31",
+      "SSH-SUCCESS-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -1727,6 +2111,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -1760,7 +2151,12 @@
       "A-000368",
       "A-000369"
     ],
-    "dedup_summary": "10 repeated alerts merged for 198.51.100.200 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "198.51.100.200",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "10 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -1773,6 +2169,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -1821,6 +2224,11 @@
     "related_alert_ids": [
       "A-000393"
     ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "198.51.100.200",
+      "SSH-BRUTEFORCE-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -1834,6 +2242,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -1858,6 +2273,11 @@
     "related_alert_ids": [
       "A-000370"
     ],
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "198.51.100.200",
+      "SSH-SUCCESS-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -1871,6 +2291,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -1900,7 +2327,12 @@
       "A-000375",
       "A-000376"
     ],
-    "dedup_summary": "6 repeated alerts merged for 203.0.113.90 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "203.0.113.90",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "6 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -1913,6 +2345,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -1955,6 +2394,11 @@
     "related_alert_ids": [
       "A-000394"
     ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "203.0.113.90",
+      "SSH-BRUTEFORCE-001"
+    ],
     "dedup_summary": "No duplicates"
   },
   {
@@ -1968,6 +2412,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_failed_login",
       "matched_field": "event_type",
@@ -1996,7 +2447,12 @@
       "A-000380",
       "A-000381"
     ],
-    "dedup_summary": "5 repeated alerts merged for 203.0.113.91 / SSH-FAIL-001"
+    "dedup_window_minutes": 10,
+    "dedup_key": [
+      "203.0.113.91",
+      "SSH-FAIL-001"
+    ],
+    "dedup_summary": "5 repeated alerts merged within 10 minutes"
   },
   {
     "rule_id": "SSH-BRUTEFORCE-001",
@@ -2009,6 +2465,13 @@
     "mitre": [
       "T1110"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 15
+    },
     "evidence": {
       "matched_field": "failed_login_count",
       "matched_pattern": ">=4 failures within 10 minutes",
@@ -2048,6 +2511,11 @@
     "duplicate_count": 1,
     "related_alert_ids": [
       "A-000395"
+    ],
+    "dedup_window_minutes": 15,
+    "dedup_key": [
+      "203.0.113.91",
+      "SSH-BRUTEFORCE-001"
     ],
     "dedup_summary": "No duplicates"
   }

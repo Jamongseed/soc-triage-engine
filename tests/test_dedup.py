@@ -70,3 +70,67 @@ def test_calculate_reduction_rate():
     assert calculate_reduction_rate(11, 5) == 54.55
     assert calculate_reduction_rate(5, 3) == 40.0
     assert calculate_reduction_rate(0, 0) == 0.0
+
+
+def test_rule_specific_dedup_window_is_applied():
+    alerts = [
+        {
+            "alert_id": "A-000001",
+            "timestamp": "2026-04-30T10:00:00+09:00",
+            "src_ip": "45.12.33.10",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "severity": "medium",
+            "dedup": {
+                "key": ["src_ip", "rule_id"],
+                "window_minutes": 30,
+            },
+            "evidence": {},
+        },
+        {
+            "alert_id": "A-000002",
+            "timestamp": "2026-04-30T10:20:00+09:00",
+            "src_ip": "45.12.33.10",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "severity": "medium",
+            "dedup": {
+                "key": ["src_ip", "rule_id"],
+                "window_minutes": 30,
+            },
+            "evidence": {},
+        },
+    ]
+
+    deduped = deduplicate_alerts(alerts, window_minutes=10)
+
+    assert len(deduped) == 1
+    assert deduped[0]["duplicate_count"] == 2
+    assert deduped[0]["dedup_window_minutes"] == 30
+
+
+def test_fallback_dedup_window_is_used_without_rule_config():
+    alerts = [
+        {
+            "alert_id": "A-000001",
+            "timestamp": "2026-04-30T10:00:00+09:00",
+            "src_ip": "45.12.33.10",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "severity": "medium",
+            "evidence": {},
+        },
+        {
+            "alert_id": "A-000002",
+            "timestamp": "2026-04-30T10:20:00+09:00",
+            "src_ip": "45.12.33.10",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "severity": "medium",
+            "evidence": {},
+        },
+    ]
+
+    deduped = deduplicate_alerts(alerts, window_minutes=10)
+
+    assert len(deduped) == 2

@@ -62,6 +62,10 @@ def detect_ssh_bruteforce(
                         "event_type": "ssh_bruteforce",
                         "src_ip": src_ip,
                         "mitre": ["T1110"],
+                        "dedup": {
+                            "key": ["src_ip", "rule_id"],
+                            "window_minutes": 15,
+                        },
                         "evidence": {
                             "matched_field": "failed_login_count",
                             "matched_pattern": f">={threshold} failures within {window_minutes} minutes",

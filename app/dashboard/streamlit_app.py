@@ -77,6 +77,21 @@ def severity_badge_html(severity: str) -> str:
     """
 
 
+def format_display_time(timestamp: str | None) -> str:
+    if not timestamp:
+        return "-"
+
+    value = str(timestamp)
+    value = value.replace("+09:00", "")
+
+    try:
+        date_part, time_part = value.split("T", 1)
+        month_day = date_part[5:]
+        return f"{month_day} {time_part}"
+    except ValueError:
+        return value
+
+
 def inject_css() -> None:
     st.markdown(
         """
@@ -410,10 +425,12 @@ def incident_card_html(incident: dict[str, Any]) -> str:
             </div>
             <div class="incident-meta">
                 Alert Count: <b>{incident.get("alert_count", 0)}</b> |
-                Unique Rules: <b>{incident.get("unique_rule_count", 0)}</b><br>
-                First Seen: <b>{incident.get("first_seen", "-")}</b><br>
-                Last Seen: <b>{incident.get("last_seen", "-")}</b><br>
-                MITRE Techniques: <b>{", ".join(incident.get("techniques", [])) or "-"}</b>
+                Unique Rules: <b>{incident.get("unique_rule_count", 0)}</b> |
+                Confidence: <b>{incident.get("confidence_score", 0)}</b><br>
+                First Seen: <b>{format_display_time(incident.get("first_seen"))}</b><br>
+                Last Seen: <b>{format_display_time(incident.get("last_seen"))}</b><br>
+                MITRE Techniques: <b>{", ".join(incident.get("techniques", [])) or "-"}</b><br>
+                Observed Stages: <b>{", ".join(incident.get("observed_stages", [])) or "-"}</b>
             </div>
             <div class="incident-summary">{incident.get("summary", "-")}</div>
         </div>
@@ -438,7 +455,7 @@ def build_timeline_html(incident: dict[str, Any]) -> str:
                     <div class="timeline-title">
                         {item.get("title", "-")} {severity_badge_html(item.get("severity", ""))}
                     </div>
-                    <div class="timeline-time">{item.get("timestamp", "-")}</div>
+                    <div class="timeline-time">{format_display_time(item.get("timestamp"))}</div>
                 </div>
                 <div class="timeline-body">
                     <span class="timeline-pill">Rule ID: {item.get("rule_id", "-")}</span>
@@ -460,12 +477,13 @@ def alerts_to_dataframe(alerts: list[dict[str, Any]]) -> pd.DataFrame:
         rows.append(
             {
                 "Alert ID": alert.get("alert_id"),
-                "Time": alert.get("timestamp"),
+                "Time": format_display_time(alert.get("timestamp")),
                 "Source IP": alert.get("src_ip"),
                 "Severity": (alert.get("severity") or "").upper(),
                 "Rule": alert.get("rule_name"),
                 "Rule ID": alert.get("rule_id"),
                 "Duplicates": alert.get("duplicate_count", 1),
+                "Dedup Window": alert.get("dedup_window_minutes"),
                 "Matched Field": evidence.get("matched_field"),
                 "Matched Pattern": evidence.get("matched_pattern"),
             }
@@ -487,11 +505,13 @@ def incidents_to_dataframe(incidents: list[dict[str, Any]]) -> pd.DataFrame:
                 "Incident ID": incident.get("incident_id"),
                 "Source IP": incident.get("src_ip"),
                 "Severity": (incident.get("severity") or "").upper(),
-                "First Seen": incident.get("first_seen"),
-                "Last Seen": incident.get("last_seen"),
+                "Confidence": incident.get("confidence_score", 0),
+                "First Seen": format_display_time(incident.get("first_seen")),
+                "Last Seen": format_display_time(incident.get("last_seen")),
                 "Alert Count": incident.get("alert_count"),
                 "Unique Rules": incident.get("unique_rule_count"),
                 "MITRE Techniques": ", ".join(incident.get("techniques", [])),
+                "Observed Stages": ", ".join(incident.get("observed_stages", [])),
                 "Summary": incident.get("summary"),
             }
         )
@@ -510,7 +530,8 @@ def suppressed_to_dataframe(alerts: list[dict[str, Any]]) -> pd.DataFrame:
         rows.append(
             {
                 "Alert ID": alert.get("alert_id"),
-                "Time": alert.get("timestamp"),
+                "Time": format_display_time(alert.get("timestamp")),
+                "Dedup Window": alert.get("dedup_window_minutes"),
                 "Source IP": alert.get("src_ip"),
                 "Rule": alert.get("rule_name"),
                 "Reason": alert.get("suppress_reason"),
@@ -526,7 +547,7 @@ def timeline_to_dataframe(incident: dict[str, Any]) -> pd.DataFrame:
         rows.append(
             {
                 "Step": idx,
-                "Time": item.get("timestamp"),
+                "Time": format_display_time(item.get("timestamp")),
                 "Severity": (item.get("severity") or "").upper(),
                 "Rule": item.get("title"),
                 "Rule ID": item.get("rule_id"),

@@ -10,6 +10,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -42,6 +49,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -74,6 +88,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -106,6 +127,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -138,6 +166,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",
@@ -170,6 +205,13 @@
     "mitre": [
       "T1078"
     ],
+    "dedup": {
+      "key": [
+        "src_ip",
+        "rule_id"
+      ],
+      "window_minutes": 10
+    },
     "evidence": {
       "event_type": "ssh_success_login",
       "matched_field": "event_type",

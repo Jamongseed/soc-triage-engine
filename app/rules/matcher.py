@@ -71,6 +71,7 @@ def match_rule(event: dict[str, Any], rule: dict[str, Any]) -> dict[str, Any] | 
         "event_type": event["event_type"],
         "src_ip": event.get("src_ip"),
         "mitre": rule.get("mitre", []),
+        "dedup": rule.get("dedup", {}),
         "evidence": evidence,
         "raw_event": event,
     }
