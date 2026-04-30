@@ -158,3 +158,165 @@ def test_suppress_trusted_network_event_type():
     assert suppressed[0]["alert_id"] == "A-000001"
     assert suppressed[0]["suppress_reason"] == "Trusted administration network"
     assert unsuppressed[0]["alert_id"] == "A-000002"
+
+
+def test_suppress_by_user_agent_policy():
+    alerts = [
+        {
+            "alert_id": "A-000001",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "event_type": "web_request",
+            "src_ip": "198.51.100.60",
+            "raw_event": {
+                "src_ip": "198.51.100.60",
+                "event_type": "web_request",
+                "user_agent": "Uptime-Kuma/1.23",
+                "url": "/server-status",
+            },
+        }
+    ]
+
+    policy = {
+        "allowed_ssh_logins": [],
+        "suppressed_rules": [],
+        "trusted_networks": [],
+        "suppressed_user_agents": [
+            {
+                "user_agent_contains": "Uptime-Kuma",
+                "rule_id": "WEB-SCAN-001",
+                "reason": "Internal uptime monitoring probe",
+            }
+        ],
+        "suppressed_paths": [],
+        "trusted_services": [],
+        "maintenance_windows": [],
+    }
+
+    unsuppressed, suppressed = suppress_alerts(alerts, policy)
+
+    assert len(unsuppressed) == 0
+    assert len(suppressed) == 1
+    assert suppressed[0]["suppress_reason"] == "Internal uptime monitoring probe"
+
+
+def test_suppress_by_path_policy():
+    alerts = [
+        {
+            "alert_id": "A-000001",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "event_type": "web_request",
+            "src_ip": "198.51.100.10",
+            "raw_event": {
+                "src_ip": "198.51.100.10",
+                "event_type": "web_request",
+                "user_agent": "Mozilla/5.0",
+                "url": "/server-status",
+            },
+        }
+    ]
+
+    policy = {
+        "allowed_ssh_logins": [],
+        "suppressed_rules": [],
+        "trusted_networks": [],
+        "suppressed_user_agents": [],
+        "suppressed_paths": [
+            {
+                "path_contains": "/server-status",
+                "src_ip": "198.51.100.10",
+                "reason": "Approved Apache status endpoint check",
+            }
+        ],
+        "trusted_services": [],
+        "maintenance_windows": [],
+    }
+
+    unsuppressed, suppressed = suppress_alerts(alerts, policy)
+
+    assert len(unsuppressed) == 0
+    assert len(suppressed) == 1
+    assert suppressed[0]["suppress_reason"] == "Approved Apache status endpoint check"
+
+
+def test_suppress_by_trusted_service_policy():
+    alerts = [
+        {
+            "alert_id": "A-000001",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "event_type": "web_request",
+            "src_ip": "198.51.100.50",
+            "raw_event": {
+                "src_ip": "198.51.100.50",
+                "event_type": "web_request",
+                "user_agent": "GitHub-Hookshot/abc",
+                "url": "/admin",
+            },
+        }
+    ]
+
+    policy = {
+        "allowed_ssh_logins": [],
+        "suppressed_rules": [],
+        "trusted_networks": [],
+        "suppressed_user_agents": [],
+        "suppressed_paths": [],
+        "trusted_services": [
+            {
+                "src_ip": "198.51.100.50",
+                "user_agent_contains": "GitHub-Hookshot",
+                "reason": "Known CI/CD webhook source",
+            }
+        ],
+        "maintenance_windows": [],
+    }
+
+    unsuppressed, suppressed = suppress_alerts(alerts, policy)
+
+    assert len(unsuppressed) == 0
+    assert len(suppressed) == 1
+    assert suppressed[0]["suppress_reason"] == "Known CI/CD webhook source"
+
+
+def test_suppress_by_maintenance_window_policy():
+    alerts = [
+        {
+            "alert_id": "A-000001",
+            "rule_id": "WEB-SCAN-001",
+            "rule_name": "Web Scanner Activity",
+            "timestamp": "2026-04-30T04:10:00+09:00",
+            "event_type": "web_request",
+            "src_ip": "45.12.33.10",
+            "raw_event": {
+                "src_ip": "45.12.33.10",
+                "event_type": "web_request",
+                "url": "/admin",
+                "user_agent": "curl/8.0",
+            },
+        }
+    ]
+
+    policy = {
+        "allowed_ssh_logins": [],
+        "suppressed_rules": [],
+        "trusted_networks": [],
+        "suppressed_user_agents": [],
+        "suppressed_paths": [],
+        "trusted_services": [],
+        "maintenance_windows": [
+            {
+                "start": "2026-04-30T04:00:00",
+                "end": "2026-04-30T04:30:00",
+                "suppress_rule_ids": ["WEB-SCAN-001"],
+                "reason": "Scheduled web assessment window",
+            }
+        ],
+    }
+
+    unsuppressed, suppressed = suppress_alerts(alerts, policy)
+
+    assert len(unsuppressed) == 0
+    assert len(suppressed) == 1
+    assert suppressed[0]["suppress_reason"] == "Scheduled web assessment window"

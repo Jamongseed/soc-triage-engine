@@ -28,9 +28,70 @@ suppressed_rules:
   - rule_id: WEB-SCAN-001
     src_ip: 198.51.100.12
     reason: Internal vulnerability scanner
+  - rule_id: WEB-SCAN-001
+    src_ip: 198.51.100.30
+    reason: Scheduled internal web exposure scan
+  - rule_id: WEB-SCAN-001
+    src_ip: 198.51.100.31
+    reason: Scheduled internal web exposure scan
+
+suppressed_user_agents:
+  - user_agent_contains: Uptime-Kuma
+    rule_id: WEB-SCAN-001
+    reason: Internal uptime monitoring probe
+  - user_agent_contains: Prometheus
+    rule_id: WEB-SCAN-001
+    reason: Internal metrics scraper
+  - user_agent_contains: ELB-HealthChecker
+    rule_id: WEB-SCAN-001
+    reason: Load balancer health check
+  - user_agent_contains: GoogleHC
+    rule_id: WEB-SCAN-001
+    reason: Cloud health check probe
+
+suppressed_paths:
+  - path_contains: /server-status
+    src_ip: 198.51.100.10
+    reason: Approved Apache status endpoint check
+  - path_contains: /.well-known/security.txt
+    reason: Security contact discovery request
+  - path_contains: /health
+    reason: Application health check endpoint
+  - path_contains: /api/status
+    reason: Application status check endpoint
+
+trusted_services:
+  - src_ip: 198.51.100.50
+    user_agent_contains: GitHub-Hookshot
+    reason: Known CI/CD webhook source
+  - src_ip: 198.51.100.51
+    user_agent_contains: Slackbot
+    reason: Known Slack link unfurl bot
+  - src_ip: 198.51.100.52
+    user_agent_contains: Pingdom
+    reason: Approved external monitoring service
+  - src_ip: 198.51.100.53
+    user_agent_contains: StatusCake
+    reason: Approved uptime monitoring service
 
 trusted_networks:
   - cidr: 203.0.113.0/24
     suppress_event_types:
       - ssh_success_login
     reason: Trusted administration network
+  - cidr: 198.51.100.0/24
+    suppress_rule_ids:
+      - WEB-SCAN-001
+    reason: Trusted internal scanning network
+
+maintenance_windows:
+  - start: "2026-04-30T02:00:00"
+    end: "2026-04-30T03:00:00"
+    suppress_rule_ids:
+      - SSH-SUCCESS-001
+    reason: Scheduled maintenance SSH access
+  - start: "2026-04-30T04:00:00"
+    end: "2026-04-30T04:30:00"
+    suppress_rule_ids:
+      - WEB-SCAN-001
+    reason: Scheduled web assessment window
